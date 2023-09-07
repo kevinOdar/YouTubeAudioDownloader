@@ -23,7 +23,7 @@ chrome_service = webdriver.chrome.service.Service(os.path.join(current_directory
 driver = webdriver.Chrome(service=chrome_service, options=options)
 
 # YouTube Channel URL
-channel_url = "https://www.youtube.com/c/nprmusic/videos"
+channel_url = config["channel_url"]
 
 # Title to search for
 search_title = config["search_title"]
