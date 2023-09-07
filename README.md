@@ -1,6 +1,6 @@
 # YouTube Audio Downloader
 
-This Python script enables you to download audio from YouTube videos belonging to a specified channel.  You have the flexibility to download videos that include a specific keyword, using it as a filtering tag. Additionally, you can opt to download all videos until a particular title is encountered, allowing you to define a subset of videos for downloading.
+This Python script enables you to download audio from YouTube videos belonging to a specified channel. You have the flexibility to download videos that include a specific keyword, using it as a filtering tag. Additionally, you can opt to download all videos until a particular title is encountered, allowing you to define a subset of videos for downloading.
 It utilizes the Selenium web automation library to navigate the YouTube website and the PyTube library for MP3 audio extraction.
 
 ## Features
@@ -16,7 +16,6 @@ It utilizes the Selenium web automation library to navigate the YouTube website 
 - **Audio Download:** When a video that matches the given criteria is found, the script will extract the audio from all the videos that were published after the specified video. The extracted audio will then be saved as MP3 files.
 
 **Note:** If a particular title is not specified, the script will download audio from all videos available on the YouTube channel.
-
 
 ## Requirements
 
@@ -39,29 +38,27 @@ pip install selenium pytube
 
 ```json
 {
-    "channel_url": "https://www.youtube.com/channel/your-channel-id",  // Mandatory: It must contain the URL of the YouTube channel you want to use.
-    "search_title": "Download until this Video Title",                 // Optional: It can be an empty string "" if you don't want to use this option.
-    "specific_word": "Specific Keyword in Video Title"                 // Optional: It can be an empty string "" if you don't want to use this option.
+  "channel_url": "https://www.youtube.com/channel/your-channel-id", // Mandatory: It must contain the URL of the YouTube channel you want to use.
+  "search_title": "Download until this Video Title", // Optional: It can be an empty string "" if you don't want to use this option.
+  "specific_word": "Specific Keyword in Video Title" // Optional: It can be an empty string "" if you don't want to use this option.
 }
 ```
-
 
 ## Usage
 
 Run the script:
+
 ```shell
 python main.py
 ```
-The script will open the specified YouTube channel, search for videos based on your criteria, and download the audio of matching videos as MP3 files.
 
+The script will open the specified YouTube channel, search for videos based on your criteria, and download the audio of matching videos as MP3 files.
 
 ## Disclaimer
 
 Use this script responsibly and respect the rights of content creators.
 
 Feel free to customize and modify the script to suit your needs, and don't hesitate to reach out if you have any questions or encounter any issues.
-
-
 
 # Descargador de Audio de canales de YouTube
 
@@ -81,7 +78,6 @@ Utiliza la biblioteca de automatización web Selenium para interactuar con el si
 - **Descarga de Audio:** Cuando se encuentra un video que tiene el título buscado, el script extraerá el audio de todos los videos que fueron publicados después del título especificado. El audio extraído se guardará como archivos MP3.
 
 **Nota:** Si no se especifica un título en particular, el script descargará todos los audios de los videos que existan en el canal de YouTube.
-
 
 **Requisitos**
 
@@ -104,9 +100,9 @@ pip install selenium pytube
 
 ```json
 {
-  "channel_url": "https://www.youtube.com/channel/your-channel-id",             // Obligatorio
-  "search_title": "Descarga hasta encontrar este Video",                        // Opcional: Puede ser un string vacío "" si no deseas utilizar esta opción. En ese caso see descargará el audio de todos los videos del canal.
-  "specific_word": "Palabra Clave que tiene que estar en el Título del Video"   // Opcional: Puede ser un string vacío "" si no deseas utilizar esta opción.
+  "channel_url": "https://www.youtube.com/channel/your-channel-id", // Obligatorio
+  "search_title": "Descarga hasta encontrar este Video", // Opcional: Puede ser un string vacío "" si no deseas utilizar esta opción. En ese caso see descargará el audio de todos los videos del canal.
+  "specific_word": "Palabra Clave que tiene que estar en el Título del Video" // Opcional: Puede ser un string vacío "" si no deseas utilizar esta opción.
 }
 ```
 
@@ -117,8 +113,8 @@ Ejecuta el script:
 ```shell
 python main.py
 ```
-El script abrirá el canal de YouTube especificado, buscará videos según tus criterios y descargará el audio de los videos coincidentes como archivos MP3.
 
+El script abrirá el canal de YouTube especificado, buscará videos según tus criterios y descargará el audio de los videos coincidentes como archivos MP3.
 
 **Descargo de Responsabilidad**
 
