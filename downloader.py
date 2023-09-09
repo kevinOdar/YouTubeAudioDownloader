@@ -12,6 +12,8 @@ def download_videos_from_channel(channel_config):
     # Selenium and Chrome Driver Configuration
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
+    options.add_argument("--disable-logging")  # Disable browser logging
+    options.add_argument("--log-level=3")  # Set the log level to SEVERE
     chrome_service = webdriver.chrome.service.Service(os.path.join(current_directory, "chromedriver.exe"))
     # Chrome Driver Configuration
     driver = webdriver.Chrome(service=chrome_service, options=options)
