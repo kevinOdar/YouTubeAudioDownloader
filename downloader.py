@@ -104,3 +104,5 @@ def download_videos_from_channel(channel_config):
 
     # Close the browser
     driver.quit()
+
+    return new_videos
