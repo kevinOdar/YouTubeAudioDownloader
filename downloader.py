@@ -8,6 +8,9 @@ import os
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
+# Output directory for MP3 files
+output_directory = os.path.join(current_directory, "mp3_output")
+
 def download_videos_from_channel(channel_config):
     # Selenium and Chrome Driver Configuration
     options = webdriver.ChromeOptions()
@@ -15,16 +18,11 @@ def download_videos_from_channel(channel_config):
     options.add_argument("--disable-logging")  # Disable browser logging
     options.add_argument("--log-level=3")  # Set the log level to SEVERE
     chrome_service = webdriver.chrome.service.Service(os.path.join(current_directory, "chromedriver.exe"))
-    # Chrome Driver Configuration
     driver = webdriver.Chrome(service=chrome_service, options=options)
 
-    # Channel URL
+    # Variables from the config file
     channel_url = channel_config["channel_url"]
-    
-    # Title to search for
     search_title = channel_config["search_title"]
-    
-    # Specific word to search for
     specific_word = channel_config["specific_word"]
 
     # Function to download audio from a YouTube video as MP3
@@ -97,7 +95,7 @@ def download_videos_from_channel(channel_config):
         #print("Title:", title)
         video_url = href
         try:
-            download_audio_as_mp3(video_url, current_directory)  # Download audio as MP3
+            download_audio_as_mp3(video_url, output_directory)  # Download audio as MP3
         except Exception as e:
             print(f"Error downloading audio from {video_url}: {str(e)} (Continuing)")
         print("-" * 50)
