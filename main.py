@@ -29,5 +29,5 @@ for channel in channels:
         channel["search_title"] = results[0][0]
 
 # Save the first downloaded title in the JSON file
-with open("config.json", "w") as json_file:
-    json.dump(channels, json_file, indent=4)
+with open("config.json", "w", encoding="utf-8") as json_file:
+    json.dump(channels, json_file, indent=4, ensure_ascii=False)
