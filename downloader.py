@@ -74,14 +74,14 @@ def download_videos_from_channel(channel_config):
         load_more_videos(driver)
 
         video_elements = driver.find_elements(By.CLASS_NAME, "yt-simple-endpoint")
-
-        #new_videos = []
+        new_videos_len = 0  # To control that there are no videos anymore
 
         for element in video_elements:
             href = element.get_attribute("href")
             title = element.get_attribute("title")
             if href and title and "/watch?v=" in href and href not in shown_video_links:
-                if search_title in title:
+                new_videos_len = new_videos_len + 1  # It will be 0 if there are no videos
+                if search_title and search_title in title: #search_title is not null ==> to make search_title optional
                     video_found = True
                     break  # Exit the loop if the desired video is found
                 elif specific_word in title:
@@ -89,16 +89,22 @@ def download_videos_from_channel(channel_config):
                 shown_video_links.add(href)
         if video_found:
             break  # No need to continue loading if the video is found
+        if new_videos_len == 0 :
+            break  # No need to continue loading if there are no videos anymore 
            
     # Download audio from videos that meet the condition
     for title, href in new_videos:
         #print("Title:", title)
         video_url = href
-        try:
-            download_audio_as_mp3(video_url, output_directory)  # Download audio as MP3
-        except Exception as e:
-            print(f"Error downloading audio from {video_url}: {str(e)} (Continuing)")
-        print("-" * 50)
+        file_title = re.sub(r'[\/:*?"<>|]', '', title)  # Remove invalid characters
+        if os.path.exists(os.path.join(output_directory, f"{file_title}.mp3")):
+            print(f"{title} was already downloaded")
+        else :
+            try:
+                download_audio_as_mp3(video_url, output_directory)  # Download audio as MP3
+            except Exception as e:
+                print(f"Error downloading audio from {video_url}: {str(e)} (Continuing)")
+            print("-" * 50)
 
     # Close the browser
     driver.quit()
