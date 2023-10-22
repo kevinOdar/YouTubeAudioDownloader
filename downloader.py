@@ -33,6 +33,21 @@ def download_audio_as_mp3(video_url, output_path, quality="128kbps"):
     except Exception as e:
         print(f"Error downloading audio from {video_url}: {str(e)}")
 
+def set_driver(channel_url, wait):
+    # Selenium and Chrome Driver Configuration
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--disable-logging")  # Disable browser logging
+    options.add_argument("--log-level=3")  # Set the log level to SEVERE
+    chrome_service = webdriver.chrome.service.Service(os.path.join(current_directory, "chromedriver.exe"))
+    driver = webdriver.Chrome(service=chrome_service, options=options)
+    # Open the channel page
+    driver.get(channel_url)
+
+    # Wait for elements to load
+    driver.implicitly_wait(wait)
+    return driver
+
 # Function to load more videos
 def load_more_videos(driver):
     continuation_elements = driver.find_elements(By.TAG_NAME, "ytd-continuation-item-renderer")
@@ -42,24 +57,12 @@ def load_more_videos(driver):
         time.sleep(3)  # Wait for new videos to load
 
 def download_videos_from_channel(channel_config):
-    # Selenium and Chrome Driver Configuration
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--disable-logging")  # Disable browser logging
-    options.add_argument("--log-level=3")  # Set the log level to SEVERE
-    chrome_service = webdriver.chrome.service.Service(os.path.join(current_directory, "chromedriver.exe"))
-    driver = webdriver.Chrome(service=chrome_service, options=options)
-
     # Variables from the config file
     channel_url = channel_config["channel_url"]
     search_title = channel_config["search_title"]
     specific_word = channel_config["specific_word"]
 
-    # Open the channel page
-    driver.get(channel_url)
-
-    # Wait for elements to load
-    driver.implicitly_wait(10)
+    driver = set_driver(channel_url, 10)
 
     # Set to store displayed video links
     shown_video_links = set()
