@@ -11,13 +11,15 @@ current_directory = os.path.dirname(os.path.abspath(__file__))
 # Output directory for MP3 files
 output_directory = os.path.join(current_directory, "mp3_output")
 
+
 # Function to download audio from a YouTube video as MP3
 def download_audio_as_mp3(video_url, output_path, quality="128kbps"):
     try:
         yt = YouTube(video_url)
         audio_stream = yt.streams.filter(only_audio=True, file_extension="mp4").first()
         if audio_stream:
-            title = re.sub(r'[\/:*?"<>|]', '', yt.title)  # Remove invalid characters
+            # Remove invalid characters
+            title = re.sub(r'[\/:*?"<>|]', "", yt.title)
             mp4_filename = os.path.join(output_path, f"{title}.mp4")
             mp3_filename = os.path.join(output_path, f"{title}.mp3")
 
@@ -27,11 +29,16 @@ def download_audio_as_mp3(video_url, output_path, quality="128kbps"):
                 os.rename(mp4_filename, mp3_filename)
                 print(f"Downloaded audio: {title}")
             else:
-                print(f"Error downloading audio from {video_url}: MP4 file not found or has incorrect extension")
+                print(
+                    f"Error downloading audio from {video_url}: MP4 file not found or has incorrect extension"
+                )
         else:
-            print(f"Error downloading audio from {video_url}: No MP4 audio stream found")
+            print(
+                f"Error downloading audio from {video_url}: No MP4 audio stream found"
+            )
     except Exception as e:
         print(f"Error downloading audio from {video_url}: {str(e)}")
+
 
 def set_driver(channel_url, wait):
     # Selenium and Chrome Driver Configuration
@@ -39,7 +46,9 @@ def set_driver(channel_url, wait):
     options.add_argument("--headless")
     options.add_argument("--disable-logging")  # Disable browser logging
     options.add_argument("--log-level=3")  # Set the log level to SEVERE
-    chrome_service = webdriver.chrome.service.Service(os.path.join(current_directory, "chromedriver.exe"))
+    chrome_service = webdriver.chrome.service.Service(
+        os.path.join(current_directory, "chromedriver.exe")
+    )
     driver = webdriver.Chrome(service=chrome_service, options=options)
     # Open the channel page
     driver.get(channel_url)
@@ -48,13 +57,18 @@ def set_driver(channel_url, wait):
     driver.implicitly_wait(wait)
     return driver
 
+
 # Function to load more videos
 def load_more_videos(driver):
-    continuation_elements = driver.find_elements(By.TAG_NAME, "ytd-continuation-item-renderer")
+    continuation_elements = driver.find_elements(
+        By.TAG_NAME, "ytd-continuation-item-renderer"
+    )
     if len(continuation_elements) > 0:
         actions = ActionChains(driver)
         actions.move_to_element(continuation_elements[0]).perform()
         time.sleep(3)  # Wait for new videos to load
+    return driver.find_elements(By.CLASS_NAME, "yt-simple-endpoint")
+
 
 def download_videos_from_channel(channel_config):
     # Variables from the config file
@@ -70,17 +84,19 @@ def download_videos_from_channel(channel_config):
     new_videos = []
 
     while True:
-        load_more_videos(driver)
-
-        video_elements = driver.find_elements(By.CLASS_NAME, "yt-simple-endpoint")
+        video_elements = load_more_videos(driver)
         new_videos_len = 0  # To control that there are no videos anymore
 
         for element in video_elements:
             href = element.get_attribute("href")
             title = element.get_attribute("title")
             if href and title and "/watch?v=" in href and href not in shown_video_links:
-                new_videos_len = new_videos_len + 1  # It will be 0 if there are no videos
-                if search_title and search_title in title: #search_title is not null ==> to make search_title optional
+                new_videos_len = (
+                    new_videos_len + 1
+                )  # It will be 0 if there are no new videos
+                if (
+                    search_title and search_title in title
+                ):  # search_title is not null ==> to make search_title optional
                     video_found = True
                     break  # Exit the loop if the desired video is found
                 elif specific_word in title:
@@ -88,21 +104,26 @@ def download_videos_from_channel(channel_config):
                 shown_video_links.add(href)
         if video_found:
             break  # No need to continue loading if the video is found
-        if new_videos_len == 0 :
-            break  # No need to continue loading if there are no videos anymore 
-           
+        if new_videos_len == 0:
+            break  # No need to continue loading if there are no videos anymore
+
     # Download audio from videos that meet the condition
     for title, href in new_videos:
-        #print("Title:", title)
+        # print("Title:", title)
         video_url = href
-        file_title = re.sub(r'[\/:*?"<>|]', '', title)  # Remove invalid characters
+        # Remove invalid characters
+        file_title = re.sub(r'[\/:*?"<>|]', "", title)
         if os.path.exists(os.path.join(output_directory, f"{file_title}.mp3")):
             print(f"{title} was already downloaded")
-        else :
+        else:
             try:
-                download_audio_as_mp3(video_url, output_directory)  # Download audio as MP3
+                download_audio_as_mp3(
+                    video_url, output_directory
+                )  # Download audio as MP3
             except Exception as e:
-                print(f"Error downloading audio from {video_url}: {str(e)} (Continuing)")
+                print(
+                    f"Error downloading audio from {video_url}: {str(e)} (Continuing)"
+                )
             print("-" * 50)
 
     # Close the browser
