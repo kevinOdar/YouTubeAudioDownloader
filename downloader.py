@@ -13,7 +13,7 @@ output_directory = os.path.join(current_directory, "mp3_output")
 
 
 # Function to download audio from a YouTube video as MP3
-def download_audio_as_mp3(video_url, output_path, quality="128kbps"):
+def download_audio_as_mp3(video_url, output_path):
     try:
         yt = YouTube(video_url)
         audio_stream = yt.streams.filter(only_audio=True, file_extension="mp4").first()

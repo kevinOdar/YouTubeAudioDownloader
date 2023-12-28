@@ -11,6 +11,7 @@ output_directory = os.path.join(current_directory, "mp3_output")
 if not os.path.exists(output_directory):
     os.makedirs(output_directory)
 
+
 # Load channel configurations from a JSON file
 def load_channels(filename):
     config_path = os.path.join(current_directory, filename)
@@ -22,7 +23,6 @@ def load_channels(filename):
 def download_videos_from_each_channel(channels):
     for channel in channels:
         results = download_videos_from_channel(channel)
-        first_result = None
 
         if results:
             # Save the first downloaded title in the JSON file
