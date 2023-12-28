@@ -51,10 +51,10 @@ def test_download_audio_as_mp3(delete_test_files):
     assert os.path.exists(file_path)
     assert file_path.endswith(".mp3")
 
-
 def test_download_videos_from_channel_all_videos(delete_test_files):
     channel_config = {
-        "channel_url": "file:///E:/Desktop/Kevin/Projects/obtener-audio-youtube/test/fake_youtube_channel.html",
+        "channel_url": "file:///"
+        + os.path.join(current_directory, "fake_youtube_channel.html"),
         "search_title": "",
         "specific_word": "Tiny Desk",
     }
@@ -75,9 +75,10 @@ def test_download_videos_from_channel_all_videos(delete_test_files):
     assert downloader.download_videos_from_channel(channel_config) == expected_videos
 
 
-def test_download_videFos_from_channel_one_video(delete_test_files, capsys):
+def test_download_videos_from_channel_one_video(delete_test_files, capsys):
     channel_config = {
-        "channel_url": "file:///E:/Desktop/Kevin/Projects/obtener-audio-youtube/test/fake_youtube_channel.html",
+        "channel_url": "file:///"
+        + os.path.join(current_directory, "fake_youtube_channel.html"),
         "search_title": "Caroline Polachek: Tiny Desk Concert",
         "specific_word": "Tiny Desk",
     }
