@@ -6,6 +6,7 @@ sys.path.insert(0, parent_dir)
 
 import iterator
 
+current_directory = os.path.dirname(os.path.abspath(__file__))
 # Output directory for MP3 files
 output_directory = os.path.join(parent_dir, "mp3_output")
 
@@ -23,13 +24,17 @@ def test_load_channels():
             "channel_url": "https://www.youtube.com/@kexp/videos",
         },
     ]
-    assert iterator.load_channels("test/config_test.json") == expected_json
+    assert (
+        iterator.load_channels(os.path.join(current_directory, "config_test.json"))
+        == expected_json
+    )
 
 
 def test_download_videos_from_each_channel():
     original_channels = [
         {
-            "channel_url": "file:///E:/Desktop/Kevin/Projects/obtener-audio-youtube/test/fake_youtube_channel.html",
+            "channel_url": "file:///"
+            + os.path.join(current_directory, "fake_youtube_channel.html"),
             "search_title": "Caroline Polachek: Tiny Desk Concert",
             "specific_word": "Tiny Desk",
         }
@@ -37,7 +42,8 @@ def test_download_videos_from_each_channel():
 
     assert iterator.download_videos_from_each_channel(original_channels) == [
         {
-            "channel_url": "file:///E:/Desktop/Kevin/Projects/obtener-audio-youtube/test/fake_youtube_channel.html",
+            "channel_url": "file:///"
+            + os.path.join(current_directory, "fake_youtube_channel.html"),
             "search_title": "Ivy Queen: Tiny Desk Concert",
             "specific_word": "Tiny Desk",
         }
@@ -49,12 +55,18 @@ def test_download_videos_from_each_channel():
 def test_save_first_titles():
     expected_json = [
         {
-            "channel_url": "file:///E:/Desktop/Kevin/Projects/obtener-audio-youtube/test/fake_youtube_channel.html",
+            "channel_url": "file:///"
+            + os.path.join(current_directory, "fake_youtube_channel.html"),
             "search_title": "Ivy Queen: Tiny Desk Concert",
             "specific_word": "Tiny Desk",
         }
     ]
-    iterator.save_first_titles("test/config_fake_html.json", expected_json)
-    assert iterator.load_channels("test/config_fake_html.json") == expected_json
+    iterator.save_first_titles(
+        os.path.join(current_directory, "config_fake_html.json"), expected_json
+    )
+    assert (
+        iterator.load_channels(os.path.join(current_directory, "config_fake_html.json"))
+        == expected_json
+    )
 
-    os.remove("test/config_fake_html.json")
+    os.remove(os.path.join(current_directory, "config_fake_html.json"))
