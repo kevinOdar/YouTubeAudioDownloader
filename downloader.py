@@ -8,18 +8,15 @@ import os
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
-# Output directory for MP3 files
 output_directory = os.path.join(current_directory, "mp3_output")
 
 
-# Function to download audio from a YouTube video as MP3
 def download_audio_as_mp3(video_url, output_path):
     try:
         yt = YouTube(video_url)
         audio_stream = yt.streams.filter(only_audio=True, file_extension="mp4").first()
         if audio_stream:
-            # Remove invalid characters
-            title = re.sub(r'[\/:*?"<>|]', "", yt.title)
+            title = re.sub(r'[\/:*?"<>|]', "", yt.title)  # Remove invalid characters
             mp4_filename = os.path.join(output_path, f"{title}.mp4")
             mp3_filename = os.path.join(output_path, f"{title}.mp3")
 
@@ -50,15 +47,13 @@ def set_driver(channel_url, wait):
         os.path.join(current_directory, "chromedriver.exe")
     )
     driver = webdriver.Chrome(service=chrome_service, options=options)
-    # Open the channel page
-    driver.get(channel_url)
 
-    # Wait for elements to load
-    driver.implicitly_wait(wait)
+    driver.get(channel_url)  # Open the channel page
+
+    driver.implicitly_wait(wait)  # Wait for elements to load
     return driver
 
 
-# Function to load more videos
 def load_more_videos(driver):
     continuation_elements = driver.find_elements(
         By.TAG_NAME, "ytd-continuation-item-renderer"
@@ -71,15 +66,13 @@ def load_more_videos(driver):
 
 
 def download_videos_from_channel(channel_config):
-    # Variables from the config file
     channel_url = channel_config["channel_url"]
     search_title = channel_config["search_title"]
     specific_word = channel_config["specific_word"]
 
     driver = set_driver(channel_url, 10)
 
-    # Set to store displayed video links
-    shown_video_links = set()
+    shown_video_links = set()  # Set to store displayed video links
     video_found = False
     new_videos = []
 
@@ -109,24 +102,19 @@ def download_videos_from_channel(channel_config):
 
     # Download audio from videos that meet the condition
     for title, href in new_videos:
-        # print("Title:", title)
         video_url = href
-        # Remove invalid characters
-        file_title = re.sub(r'[\/:*?"<>|]', "", title)
+        file_title = re.sub(r'[\/:*?"<>|]', "", title)  # Remove invalid characters
         if os.path.exists(os.path.join(output_directory, f"{file_title}.mp3")):
             print(f"{title} was already downloaded")
         else:
             try:
-                download_audio_as_mp3(
-                    video_url, output_directory
-                )  # Download audio as MP3
+                download_audio_as_mp3(video_url, output_directory)
             except Exception as e:
                 print(
                     f"Error downloading audio from {video_url}: {str(e)} (Continuing)"
                 )
             print("-" * 50)
 
-    # Close the browser
-    driver.quit()
+    driver.quit()  # Close the browser
 
     return new_videos

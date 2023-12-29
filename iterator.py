@@ -4,7 +4,6 @@ from downloader import download_videos_from_channel
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
-# Output directory for MP3 files
 output_directory = os.path.join(current_directory, "mp3_output")
 
 # Check if the output folder exists and create it if not
@@ -25,8 +24,9 @@ def download_videos_from_each_channel(channels):
         results = download_videos_from_channel(channel)
 
         if results:
-            # Save the first downloaded title in the JSON file
-            channel["search_title"] = results[0][0]
+            channel["search_title"] = results[0][
+                0
+            ]  # Save the first downloaded title in the JSON file
     return channels
 
 
