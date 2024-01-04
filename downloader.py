@@ -65,7 +65,7 @@ def load_more_videos(driver):
     return driver.find_elements(By.CLASS_NAME, "yt-simple-endpoint")
 
 
-def download_videos_from_channel(channel_config):
+def get_videos_from_channel(channel_config):
     channel_url = channel_config["channel_url"]
     search_title = channel_config["search_title"]
     specific_word = channel_config["specific_word"]
@@ -79,7 +79,6 @@ def download_videos_from_channel(channel_config):
     while True:
         video_elements = load_more_videos(driver)
         new_videos_len = 0  # To control that there are no videos anymore
-
         for element in video_elements:
             href = element.get_attribute("href")
             title = element.get_attribute("title")
@@ -99,6 +98,12 @@ def download_videos_from_channel(channel_config):
             break  # No need to continue loading if the video is found
         if new_videos_len == 0:
             break  # No need to continue loading if there are no videos anymore
+    driver.quit()  # Close the browser
+    return new_videos
+
+
+def download_videos_from_channel(channel_config):
+    new_videos = get_videos_from_channel(channel_config)
 
     # Download audio from videos that meet the condition
     for title, href in new_videos:
@@ -114,7 +119,5 @@ def download_videos_from_channel(channel_config):
                     f"Error downloading audio from {video_url}: {str(e)} (Continuing)"
                 )
             print("-" * 50)
-
-    driver.quit()  # Close the browser
 
     return new_videos
