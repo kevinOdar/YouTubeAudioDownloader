@@ -62,7 +62,10 @@ def load_more_videos(driver):
         actions = ActionChains(driver)
         actions.move_to_element(continuation_elements[0]).perform()
         time.sleep(3)  # Wait for new videos to load
-    return driver.find_elements(By.CLASS_NAME, "yt-simple-endpoint")
+    return driver.find_elements(
+        By.CSS_SELECTOR,
+        ".yt-simple-endpoint.focus-on-expand.style-scope.ytd-rich-grid-media",
+    )
 
 
 def get_videos_from_channel(channel_config):

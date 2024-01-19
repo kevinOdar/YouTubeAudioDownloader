@@ -32,7 +32,7 @@ def test_load_more_videos():
 
     driver = downloader.set_driver(channel_url, 10)
     video_elements = downloader.load_more_videos(driver)
-    assert len(video_elements) == 209  # 48 videos
+    assert len(video_elements) == 48  # 48 videos
 
 
 # @pytest.mark.only
@@ -50,6 +50,7 @@ def test_download_audio_as_mp3(delete_test_files):
 
     assert os.path.exists(file_path)
     assert file_path.endswith(".mp3")
+
 
 def test_download_videos_from_channel_all_videos(delete_test_files):
     channel_config = {
