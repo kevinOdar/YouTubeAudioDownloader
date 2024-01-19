@@ -61,17 +61,31 @@ def test_download_videos_from_channel_all_videos(delete_test_files):
     }
     global expected_videos  # Used by the fixture
     expected_videos = [
-        ("Ivy Queen: Tiny Desk Concert", "https://www.youtube.com/watch?v=7EAM4pxxL4Y"),
+        (
+            "Ivy Queen: Tiny Desk Concert",
+            "https://www.youtube.com/watch?v=7EAM4pxxL4Y",
+            "https://i.ytimg.com/vi/7EAM4pxxL4Y/hqdefault.jpg",
+        ),
         (
             "Caroline Polachek: Tiny Desk Concert",
             "https://www.youtube.com/watch?v=JmnZHQNN5cc",
+            "https://i.ytimg.com/vi/JmnZHQNN5cc/hqdefault.jpg",
         ),
         (
             "Villano Antillano: Tiny Desk Concert",
             "https://www.youtube.com/watch?v=RxhleZbLF64",
+            "https://i.ytimg.com/vi/RxhleZbLF64/hqdefault.jpg",
         ),
-        ("Alex Cuba: Tiny Desk Concert", "https://www.youtube.com/watch?v=A3ThZptD8WY"),
-        ("Chlöe: Tiny Desk Concert", "https://www.youtube.com/watch?v=oIeqO2tyhcY"),
+        (
+            "Alex Cuba: Tiny Desk Concert",
+            "https://www.youtube.com/watch?v=A3ThZptD8WY",
+            "https://i.ytimg.com/vi/A3ThZptD8WY/hqdefault.jpg",
+        ),
+        (
+            "Chlöe: Tiny Desk Concert",
+            "https://www.youtube.com/watch?v=oIeqO2tyhcY",
+            "https://i.ytimg.com/vi/oIeqO2tyhcY/hqdefault.jpg",
+        ),
     ]
     assert downloader.download_videos_from_channel(channel_config) == expected_videos
 
@@ -85,7 +99,11 @@ def test_download_videos_from_channel_one_video(delete_test_files, capsys):
     }
     global expected_videos  # Used by the fixture
     expected_videos = [
-        ("Ivy Queen: Tiny Desk Concert", "https://www.youtube.com/watch?v=7EAM4pxxL4Y"),
+        (
+            "Ivy Queen: Tiny Desk Concert",
+            "https://www.youtube.com/watch?v=7EAM4pxxL4Y",
+            "https://i.ytimg.com/vi/7EAM4pxxL4Y/hqdefault.jpg",
+        ),
     ]
     assert downloader.download_videos_from_channel(channel_config) == expected_videos
 

@@ -95,7 +95,13 @@ def get_videos_from_channel(channel_config):
                     video_found = True
                     break  # Exit the loop if the desired video is found
                 elif specific_word in title:
-                    new_videos.append((title, href))
+                    new_videos.append(
+                        (
+                            title,
+                            href,
+                            "https://i.ytimg.com/vi/" + href[-11:] + "/hqdefault.jpg",
+                        )
+                    )
                 shown_video_links.add(href)
         if video_found:
             break  # No need to continue loading if the video is found
@@ -109,7 +115,7 @@ def download_videos_from_channel(channel_config):
     new_videos = get_videos_from_channel(channel_config)
 
     # Download audio from videos that meet the condition
-    for title, href in new_videos:
+    for title, href, thumbnail_url in new_videos:
         video_url = href
         file_title = re.sub(r'[\/:*?"<>|]', "", title)  # Remove invalid characters
         if os.path.exists(os.path.join(output_directory, f"{file_title}.mp3")):
