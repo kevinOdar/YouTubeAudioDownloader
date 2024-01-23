@@ -14,8 +14,7 @@ output_directory = os.path.join(current_directory, "mp3_output")
 def download_audio_as_mp3(title, video_url, output_path):
     file_title = re.sub(r'[\/:*?"<>|]', "", title)  # Remove invalid characters
     if os.path.exists(os.path.join(output_directory, f"{file_title}.mp3")):
-        print(f"{title} was already downloaded")
-        # raise Exception(f"{title} was already downloaded")
+        raise Exception(f"{title} was already downloaded")
     else:
         try:
             yt = YouTube(video_url)
@@ -23,17 +22,16 @@ def download_audio_as_mp3(title, video_url, output_path):
                 only_audio=True, file_extension="mp4"
             ).first()
             if audio_stream:
-                title = re.sub(
-                    r'[\/:*?"<>|]', "", yt.title
-                )  # Remove invalid characters
-                mp4_filename = os.path.join(output_path, f"{title}.mp4")
-                mp3_filename = os.path.join(output_path, f"{title}.mp3")
+                mp4_filename = os.path.join(output_path, f"{file_title}.mp4")
+                mp3_filename = os.path.join(output_path, f"{file_title}.mp3")
 
-                audio_stream.download(output_path=output_path, filename=title + ".mp4")
+                audio_stream.download(
+                    output_path=output_path, filename=file_title + ".mp4"
+                )
 
                 if os.path.exists(mp4_filename) and mp4_filename.endswith(".mp4"):
                     os.rename(mp4_filename, mp3_filename)
-                    print(f"Downloaded audio: {title}")
+                    print(f"Downloaded audio: {file_title}")
                 else:
                     raise FileNotFoundError(
                         f"Error downloading audio from {video_url}: MP4 file not found or has incorrect extension"
@@ -123,11 +121,10 @@ def get_videos_from_channel(channel_config):
 def download_videos_from_channel(channel_config):
     new_videos = get_videos_from_channel(channel_config)
 
-    # Download audio from videos that meet the condition
     for title, video_url, _ in new_videos:
         try:
             download_audio_as_mp3(title, video_url, output_directory)
         except Exception as e:
-            print(f"Error downloading audio from {video_url}: {str(e)} (Continuing)")
+            print(str(e))
 
     return new_videos
