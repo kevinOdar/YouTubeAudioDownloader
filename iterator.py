@@ -22,7 +22,7 @@ def load_channels(filename):
 def download_videos_from_each_channel(channels):
     for channel in channels:
         results = download_videos_from_channel(channel)
-
+        print("-" * 50)
         if results:
             channel["search_title"] = results[0][
                 0
