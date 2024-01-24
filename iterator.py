@@ -1,6 +1,6 @@
 import os
 import json
-from downloader import download_videos_from_channel
+from downloader import download_videos_from_channel, get_videos_from_channel
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
