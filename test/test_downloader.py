@@ -54,6 +54,7 @@ def test_download_audio_as_mp3(delete_test_files):
     assert file_path.endswith(".mp3")
 
 
+# @pytest.mark.only
 def test_download_videos_from_channel_all_videos(delete_test_files):
     channel_config = {
         "channel_url": "file:///"
@@ -89,10 +90,17 @@ def test_download_videos_from_channel_all_videos(delete_test_files):
             "https://i.ytimg.com/vi/oIeqO2tyhcY/hqdefault.jpg",
         ),
     ]
-    assert downloader.download_videos_from_channel(channel_config) == expected_videos
+    assert downloader.get_videos_from_channel(channel_config) == expected_videos
+
+    downloader.download_videos_from_channel(channel_config)
+    for title, _, _ in expected_videos:
+        expected_file_path = os.path.join(
+            output_directory, re.sub(r'[\/:*?"<>|]', "", title) + ".mp3"
+        )
+        assert os.path.exists(expected_file_path)
 
 
-def test_download_videos_from_channel_one_video(delete_test_files, capsys):
+def test_only_download_one_video(delete_test_files, capsys):
     channel_config = {
         "channel_url": "file:///"
         + os.path.join(current_directory, "fake_youtube_channel.html"),
@@ -107,7 +115,19 @@ def test_download_videos_from_channel_one_video(delete_test_files, capsys):
             "https://i.ytimg.com/vi/7EAM4pxxL4Y/hqdefault.jpg",
         ),
     ]
-    assert downloader.download_videos_from_channel(channel_config) == expected_videos
+    assert downloader.get_videos_from_channel(channel_config) == expected_videos
+
+    downloader.download_videos_from_channel(channel_config)
+    assert os.path.exists(
+        os.path.join(output_directory, "Ivy Queen Tiny Desk Concert.mp3")
+    )
+
+    with pytest.raises(
+        Exception, match="Ivy Queen: Tiny Desk Concert was already downloaded"
+    ):
+        downloader.download_audio_as_mp3(
+            expected_videos[0][0], expected_videos[0][1], output_directory
+        )
 
     capsys.readouterr()  # To catch the first printout "Downloaded audio..."
     downloader.download_videos_from_channel(channel_config)

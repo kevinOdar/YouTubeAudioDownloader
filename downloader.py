@@ -126,5 +126,3 @@ def download_videos_from_channel(channel_config):
             download_audio_as_mp3(title, video_url, output_directory)
         except Exception as e:
             print(str(e))
-
-    return new_videos
