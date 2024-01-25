@@ -13,7 +13,7 @@ output_directory = os.path.join(current_directory, "mp3_output")
 
 def download_audio_as_mp3(title, video_url, output_path):
     file_title = re.sub(r'[\/:*?"<>|]', "", title)  # Remove invalid characters
-    if os.path.exists(os.path.join(output_directory, f"{file_title}.mp3")):
+    if os.path.exists(os.path.join(output_path, f"{file_title}.mp3")):
         raise Exception(f"{title} was already downloaded")
     else:
         try:
