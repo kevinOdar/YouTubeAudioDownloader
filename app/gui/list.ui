@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AvailableAudios</class>
+ <widget class="QMainWindow" name="AvailableAudios">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>849</width>
+    <height>716</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>AvailableAudios</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTableWidget" name="tableWidget">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>80</y>
+      <width>791</width>
+      <height>561</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string>Thumbnail</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Title</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string/>
+     </property>
+    </column>
+   </widget>
+   <widget class="QPushButton" name="btnDownloadAll">
+    <property name="geometry">
+     <rect>
+      <x>690</x>
+      <y>20</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Download all</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblMessage">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>650</y>
+      <width>791</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>message</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnBack">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>20</y>
+      <width>71</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <kerning>true</kerning>
+     </font>
+    </property>
+    <property name="toolTip">
+     <string/>
+    </property>
+    <property name="text">
+     <string>Back</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtFilter">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>20</y>
+      <width>281</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>IBeamCursor</cursorShape>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string> Filter by</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblSelectedPath">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>20</y>
+      <width>191</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Select Download Folder</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnSelectPath">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>20</y>
+      <width>51</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
