@@ -2,11 +2,13 @@ import os
 import sys
 
 from model.channel import Channel
+
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 parent_dir = os.path.join(parent_dir, "..")
 sys.path.insert(0, parent_dir)
 
 from downloader import get_videos_from_channel, download_audio_as_mp3
+
 
 class ChannelData:
     def __init__(self) -> None:
@@ -24,8 +26,8 @@ class ChannelData:
         for title, video_url, _ in self.videos_to_download:
             try:
                 download_audio_as_mp3(title, video_url, output_directory)
+                show_message(f'"{title}" was successfully downloaded')
             except Exception as e:
-                # print(str(e))
                 show_message(str(e))
                 # raise Exception(str(e))
 

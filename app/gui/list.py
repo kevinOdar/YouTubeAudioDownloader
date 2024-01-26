@@ -104,11 +104,8 @@ class ListWindow:
         )
         self.list.spinner_label.setMovie(spinner_movie)
         spinner_movie.start()
-
-        # Create a layout to hold the spinner and other widgets
         layout = QVBoxLayout(self.list)
         layout.addWidget(self.list.spinner_label)
-        layout.addWidget(self.list.tableWidget)
 
         # Show the main window before starting the video loading thread
         self.list.show()
