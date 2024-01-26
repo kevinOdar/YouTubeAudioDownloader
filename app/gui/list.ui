@@ -160,7 +160,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>loading</string>
+     <string>Loading...</string>
     </property>
    </widget>
   </widget>

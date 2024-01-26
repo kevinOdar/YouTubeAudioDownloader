@@ -9,10 +9,9 @@ from PyQt6.QtWidgets import (
     QWidget,
     QFileDialog,
     QMessageBox,
-    QSizePolicy,
 )
 from PyQt6.QtGui import QPixmap, QMovie
-from PyQt6.QtCore import QUrl, Qt, QTimer, QThread, pyqtSignal
+from PyQt6.QtCore import QUrl, Qt, QThread, pyqtSignal
 from data.channel import ChannelData
 from model.channel import Channel
 
