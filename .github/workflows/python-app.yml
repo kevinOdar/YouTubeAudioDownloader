@@ -28,10 +28,12 @@ jobs:
       - name: Check for changes in app folder
         id: check_changes
         run: |
-          if git diff --quiet ${{ github.event.before }} ${{ github.sha }} -- 'app/'; then
+          $changes = git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+          $app_changes = $changes -like 'app/*'
+          if (-not $app_changes) {
             echo "No changes in app folder. Skipping tests."
             exit 0
-          fi
+          }
       - name: Lint with flake8
         run: |
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
