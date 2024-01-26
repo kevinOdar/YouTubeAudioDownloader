@@ -9,9 +9,10 @@ from PyQt6.QtWidgets import (
     QWidget,
     QFileDialog,
     QMessageBox,
+    QSizePolicy,
 )
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtCore import QUrl, Qt
+from PyQt6.QtGui import QPixmap, QMovie
+from PyQt6.QtCore import QUrl, Qt, QTimer, QThread, pyqtSignal
 from data.channel import ChannelData
 from model.channel import Channel
 
@@ -62,6 +63,21 @@ class DownloadButton(QPushButton):
             channelData.download_videos(self.list.download_path, self.list.show_message)
 
 
+class VideoLoaderThread(QThread):
+    video_loaded = pyqtSignal(list)
+
+    def __init__(self, channel):
+        super().__init__()
+        self.channel = channel
+
+    def run(self):
+        try:
+            availableVideos = channelData.get_videos(self.channel)
+            self.video_loaded.emit(availableVideos)
+        except Exception as e:
+            print(e)
+
+
 class ListWindow:
     def __init__(self, channel: Channel) -> None:
         self.list = uic.loadUi("gui/list.ui")
@@ -81,14 +97,35 @@ class ListWindow:
             QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DirIcon)
         )
 
+        # Add a QLabel for the spinner
+        self.spinner_label = QLabel("Loading...", self.list)
+        spinner_movie = QMovie("resources/Spinner.gif")  # Replace with the path to your spinner GIF
+        self.spinner_label.setMovie(spinner_movie)
+        spinner_movie.start()
+
+        # Create a layout to hold the spinner and other widgets
+        layout = QVBoxLayout(self.list)
+        layout.addWidget(self.spinner_label)
+        layout.addWidget(self.list.tableWidget)
+
+        # Show the main window before starting the video loading thread
         self.list.show()
+
+        # Create and start the video loading thread
+        self.video_loader_thread = VideoLoaderThread(channel)
+        self.video_loader_thread.video_loaded.connect(self.handle_video_loading)
+        self.video_loader_thread.start()
+
         self.list.tableWidget.setColumnWidth(0, 298)
         self.list.tableWidget.setColumnWidth(1, 330)  # 355 without vertical bar
         self.list.tableWidget.setColumnWidth(2, 120)
 
+    def handle_video_loading(self, availableVideos):
+        # This method is called when video loading is complete
+        # Now you can use availableVideos as needed
+        # Perform operations that depend on the loaded videos here
+        self.spinner_label.hide()
         try:
-            availableVideos = channelData.get_videos(channel)
-
             self.list.btnDownloadAll.clicked.connect(
                 lambda: self.download_all(availableVideos)
             )
@@ -117,6 +154,9 @@ class ListWindow:
 
         except Exception as e:
             print(e)
+        finally:
+            # Force the application to process any pending events
+            QApplication.processEvents()
 
     def download_all(self, availableVideos):
         if not self.download_path:
@@ -137,7 +177,7 @@ class ListWindow:
         selected_path = QFileDialog.getExistingDirectory(
             self.list, "Select Download Folder", self.download_path
         )
-        if selected_path:  # Only if the user update the downlaods path
+        if selected_path:  # Only if the user updates the downloads path
             self.download_path = selected_path
             self.list.lblSelectedPath.setText("../" + os.path.basename(selected_path))
 
