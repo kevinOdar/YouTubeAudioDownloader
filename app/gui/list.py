@@ -97,15 +97,18 @@ class ListWindow:
             QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DirIcon)
         )
 
-        # Add a QLabel for the spinner
-        self.spinner_label = QLabel("Loading...", self.list)
-        spinner_movie = QMovie("resources/Spinner.gif")  # Replace with the path to your spinner GIF
-        self.spinner_label.setMovie(spinner_movie)
+        # Spinner
+        spinner_movie = QMovie(
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "resources/Spinner.gif"
+            )
+        )
+        self.list.spinner_label.setMovie(spinner_movie)
         spinner_movie.start()
 
         # Create a layout to hold the spinner and other widgets
         layout = QVBoxLayout(self.list)
-        layout.addWidget(self.spinner_label)
+        layout.addWidget(self.list.spinner_label)
         layout.addWidget(self.list.tableWidget)
 
         # Show the main window before starting the video loading thread
@@ -122,9 +125,8 @@ class ListWindow:
 
     def handle_video_loading(self, availableVideos):
         # This method is called when video loading is complete
-        # Now you can use availableVideos as needed
         # Perform operations that depend on the loaded videos here
-        self.spinner_label.hide()
+        self.list.spinner_label.hide()
         try:
             self.list.btnDownloadAll.clicked.connect(
                 lambda: self.download_all(availableVideos)
