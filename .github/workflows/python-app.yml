@@ -9,8 +9,8 @@ on:
   pull_request:
     branches: ["main"]
     paths:
-      - '**/*.py'
-      - '!app/**'  # Excluir la carpeta 'excluded_folder'
+      - "**/*.py"
+      - "!app/**/*"
 permissions:
   contents: read
 
