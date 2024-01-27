@@ -29,34 +29,34 @@ jobs:
         id: check_root_changes
         run: |
           changes=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
-          app_changes=$(echo "$changes" | grep -E '^app/' || true)
+          app_changes=$(echo "$changes" | grep -E '^/app/' || true)
           if [ -z "$app_changes" ]; then
-            echo "Changes detected outside app folder. Running tests in ./test/."
+            echo "Changes detected outside app folder. Running tests in /test/."
           else
-            echo "Changes detected in app folder. Skipping tests in ./test/."
+            echo "Changes detected in app folder. Skipping tests in /test/."
             exit 0
           fi
       - name: Lint with flake8
         run: |
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - name: Test with pytest (for ./test/)
+      - name: Test with pytest (for /test/)
         if: steps.check_root_changes.outputs.result == 'success'
         run: |
-          pytest ./test/
+          pytest /test/
 
       - name: Check for changes in app folder
         id: check_app_changes
         run: |
           changes=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
-          app_changes=$(echo "$changes" | grep -E '^app/' || true)
+          app_changes=$(echo "$changes" | grep -E '/(?!(app/)).*' || true)
           if [ -n "$app_changes" ]; then
-            echo "Changes detected in app folder. Running tests in ./app/test/."
+            echo "Changes detected in app folder. Running tests in /app/test/."
           else
-            echo "No changes in app folder. Skipping tests in ./app/test/."
+            echo "No changes in app folder. Skipping tests in /app/test/."
             exit 0
           fi
-      - name: Test with pytest (for ./app/test/)
+      - name: Test with pytest (for /app/test/)
         if: steps.check_app_changes.outputs.result == 'success'
         run: |
-          pytest ./app/test/
+          pytest /app/test/
