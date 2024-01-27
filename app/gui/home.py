@@ -1,13 +1,13 @@
 from PyQt6 import uic
-from PyQt6.QtWidgets import QMessageBox
-from data.channel import ChannelData
 from model.channel import Channel
 from gui.list import ListWindow
 import requests
+from PyQt6.QtWidgets import QWidget
 
 
-class Home:
+class Home(QWidget):
     def __init__(self) -> None:
+        super().__init__()
         self.home = uic.loadUi("gui/home.ui")
         self.initGUI()
         self.home.lblMessage.setText("")
