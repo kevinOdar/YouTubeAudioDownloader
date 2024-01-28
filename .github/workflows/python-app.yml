@@ -25,16 +25,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install flake8 pytest selenium pytube PyQt6 pytest-qt
-      - name: Run if the modified files are from the root folder and not from the app folder
-        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.modified, '/') && !contains(github.event.head_commit.modified, '/app/') }}
+      - name: Run backend tests
         run: |
-          pytest ./test/test_downloader.py
-      - name: Debug Info
-        run: |
-          if [ -z "${{ github.event.before }}" ]; then
-            base_commit=$(git rev-list --max-parents=0 HEAD)
-          else
-            base_commit="${{ github.event.before }}"
-          fi
-          echo "Modified or Created Files: $(git diff --name-status $base_commit ${{ github.sha }})"
-          shell: bash
+          pytest ./test/.
