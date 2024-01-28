@@ -18,3 +18,4 @@ if __name__ == "__main__":
     current_directory = os.path.dirname(os.path.abspath(__file__))
 
     generate_directory_diagram(current_directory)
+#sdsds
