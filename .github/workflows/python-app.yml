@@ -31,5 +31,10 @@ jobs:
           pytest ./test/test_downloader.py
       - name: Debug Info
         run: |
-          echo "Modified or Created Files: $(git diff --name-status ${{ github.event.before }} ${{ github.sha }})"
+        if [ -z "${{ github.event.before }}" ]; then
+          base_commit=$(git rev-list --max-parents=0 HEAD)
+        else
+          base_commit="${{ github.event.before }}"
+        fi
+        echo "Modified or Created Files: $(git diff --name-status $base_commit ${{ github.sha }})"
         shell: bash
