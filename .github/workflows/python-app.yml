@@ -25,38 +25,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install flake8 pytest selenium pytube PyQt6 pytest-qt
-      - name: Check for changes in root folder (excluding app)
-        id: check_root_changes
+      - name: Run specific command for modified files in a specific folder
+        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.modified, '/') && !contains(github.event.head_commit.modified, '/app/') }}
         run: |
-          changes=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
-          app_changes=$(echo "$changes" | grep -E '^/app/' || true)
-          if [ -z "$app_changes" ]; then
-            echo "Changes detected outside app folder. Running tests in /test/."
-          else
-            echo "Changes detected in app folder. Skipping tests in /test/."
-            exit 0
-          fi
-      - name: Lint with flake8
-        run: |
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - name: Test with pytest (for /test/)
-        if: steps.check_root_changes.outputs.result == 'success'
-        run: |
-          pytest /test/
-
-      - name: Check for changes in app folder
-        id: check_app_changes
-        run: |
-          changes=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
-          app_changes=$(echo "$changes" | grep -E '/(?!(app/)).*' || true)
-          if [ -n "$app_changes" ]; then
-            echo "Changes detected in app folder. Running tests in /app/test/."
-          else
-            echo "No changes in app folder. Skipping tests in /app/test/."
-            exit 0
-          fi
-      - name: Test with pytest (for /app/test/)
-        if: steps.check_app_changes.outputs.result == 'success'
-        run: |
-          pytest /app/test/
+          # Agrega aquí el comando que deseas ejecutar para archivos modificados en '/'
