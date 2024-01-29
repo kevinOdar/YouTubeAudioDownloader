@@ -109,9 +109,9 @@ border-radius: 8px;</string>
   <widget class="QLabel" name="lblMessage">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>40</x>
      <y>390</y>
-     <width>211</width>
+     <width>361</width>
      <height>21</height>
     </rect>
    </property>

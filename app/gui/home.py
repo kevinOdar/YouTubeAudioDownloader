@@ -23,8 +23,11 @@ class Home(QWidget):
                 channel = Channel(channel_name=self.home.txtChannel.text())
                 self.list = ListWindow(channel)
                 self.home.hide()
-
-            else:
+            elif not status_code:
+                self.home.lblMessage.setText(
+                    "No internet connection. Please check your network."
+                )
+            elif status_code == 404:
                 self.home.lblMessage.setText("The channel doesn't exist")
 
     def initGUI(self):
@@ -32,5 +35,14 @@ class Home(QWidget):
 
     def validate_youtube_channel(self, channel_name):
         url = f"https://www.youtube.com/c/{channel_name}"
-        response = requests.get(url)
-        return response.status_code
+
+        try:
+            response = requests.get(url)
+            return response.status_code
+        except Exception as e:
+            if "Max retries exceeded" in str(
+                e
+            ) or "Failed to establish a new connection" in str(e):
+                return None
+            else:
+                print(f"Error validating channel: {e}")
