@@ -15,9 +15,9 @@ from unittest.mock import Mock
 
 @pytest.fixture
 def home_test(qtbot):
-    ventana = Home()
-    qtbot.addWidget(ventana)
-    return ventana
+    home_window = Home()
+    qtbot.addWidget(home_window)
+    return home_window
 
 
 @pytest.fixture
@@ -26,7 +26,6 @@ def mocker():
 
 
 def test_user_doesnt_enter_a_channel(home_test, qtbot):
-    print("entra aca")
     QTest.mouseMove(home_test.home.btnSearch)
     QTest.mouseClick(home_test.home.btnSearch, Qt.MouseButton.LeftButton)
     assert home_test.home.lblMessage.text() == "Please, enter a channel name"
@@ -50,7 +49,7 @@ def test_user_enters_valid_channel_and_shows_list_window(home_test, qtbot, mocke
     QTest.keyClicks(home_test.home.txtChannel, channel_name)
     assert home_test.home.txtChannel.text() == channel_name
 
-    mocker.return_value.status_code = 200
+    #mocker.return_value.status_code = 200
 
     QTest.mouseMove(home_test.home.btnSearch)
     QTest.mouseClick(home_test.home.btnSearch, Qt.MouseButton.LeftButton)
