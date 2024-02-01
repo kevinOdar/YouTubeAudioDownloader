@@ -107,8 +107,7 @@ class ListWindow:
         layout = QVBoxLayout(self.list)
         layout.addWidget(self.list.spinner_label)
 
-        # Show the main window before starting the video loading thread
-        self.list.show()
+        self.list.show()  # Show the main window before starting the video loading thread
 
         # Create and start the video loading thread
         self.video_loader_thread = VideoLoaderThread(channel)
@@ -153,8 +152,7 @@ class ListWindow:
         except Exception as e:
             print(e)
         finally:
-            # Force the application to process any pending events
-            QApplication.processEvents()
+            QApplication.processEvents()  # Force the application to process any pending events
 
     def download_all(self, availableVideos):
         if not self.download_path:
