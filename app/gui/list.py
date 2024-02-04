@@ -53,6 +53,7 @@ class DownloadButton(QPushButton):
         self.clicked.connect(self.download_audio)
 
     def download_audio(self):
+        print(self.list.download_path)
         if not self.list.download_path:  # Show an alert if download_path is empty
             self.list.handle_download_error(
                 "Please select a download folder before downloading."
@@ -187,3 +188,6 @@ class ListWindow:
 
     def show_message(self, message):
         self.list.lblMessage.setText(message)
+
+    def set_download_path(self, path):  # testing purpose
+        self.download_path = path
