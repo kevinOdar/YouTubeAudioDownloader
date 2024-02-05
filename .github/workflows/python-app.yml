@@ -28,3 +28,6 @@ jobs:
       - name: Run backend tests
         run: |
           pytest ./test/.
+      - name: Run frontend tests
+        run: |
+          pytest ./app/test/.
