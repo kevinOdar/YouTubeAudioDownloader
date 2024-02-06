@@ -53,7 +53,6 @@ class DownloadButton(QPushButton):
         self.clicked.connect(self.download_audio)
 
     def download_audio(self):
-        print(self.list.download_path)
         if not self.list.download_path:  # Show an alert if download_path is empty
             self.list.handle_download_error(
                 "Please select a download folder before downloading."
@@ -69,11 +68,12 @@ class VideoLoaderThread(QThread):
     def __init__(self, channel):
         super().__init__()
         self.channel = channel
+        self.availableVideos = []
 
     def run(self):
         try:
-            availableVideos = channelData.get_videos(self.channel)
-            self.video_loaded.emit(availableVideos)
+            self.availableVideos = channelData.get_videos(self.channel)
+            self.video_loaded.emit(self.availableVideos)
         except Exception as e:
             print(e)
 
@@ -119,14 +119,25 @@ class ListWindow:
         self.list.tableWidget.setColumnWidth(1, 330)  # 355 without vertical bar
         self.list.tableWidget.setColumnWidth(2, 120)
 
+        # Filtering
+        self.list.txtFilter.textChanged.connect(self.update_filter_text)
+        self.filtered_videos = self.video_loader_thread.availableVideos
+
+    def update_filter_text(self):
+        self.filtered_videos = [
+            (title, url, thumbnail_url)
+            for title, url, thumbnail_url in self.video_loader_thread.availableVideos
+            if self.list.txtFilter.text().lower() in title.lower()
+        ]
+        self.handle_video_loading(self.filtered_videos)
+
     def handle_video_loading(self, availableVideos):
         # This method is called when video loading is complete
         # Perform operations that depend on the loaded videos here
+        self.list.txtFilter.setEnabled(True)
         self.list.spinner_label.hide()
         try:
-            self.list.btnDownloadAll.clicked.connect(
-                lambda: self.download_all(availableVideos)
-            )
+            self.list.btnDownloadAll.clicked.connect(self.download_all)
 
             self.list.tableWidget.setRowCount(len(availableVideos))
             for i, (title, url, thumbnail_url) in enumerate(availableVideos):
@@ -155,13 +166,13 @@ class ListWindow:
         finally:
             QApplication.processEvents()  # Force the application to process any pending events
 
-    def download_all(self, availableVideos):
+    def download_all(self):
         if not self.download_path:
             self.handle_download_error(
                 "Please select a download folder before downloading."
             )
         else:
-            channelData.videos_to_download = availableVideos
+            channelData.videos_to_download = self.filtered_videos
             channelData.download_videos(self.download_path, self.show_message)
 
     def back_home(self):
