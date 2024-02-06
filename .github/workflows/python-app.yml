@@ -30,4 +30,5 @@ jobs:
           pytest ./test/.
       - name: Run frontend tests
         run: |
-          pytest ./app/test/.
+          cd ./app
+          pytest ./test/.
