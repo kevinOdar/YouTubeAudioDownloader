@@ -41,6 +41,26 @@ class ImageWidget(QLabel):
             print(f"Error loading image: {reply.errorString()}")
 
 
+class VideoDownloaderThread(QThread):
+    video_downloaded = pyqtSignal(str)
+
+    def __init__(self, title, url, download_path, callback):
+        super().__init__()
+        self.title = title
+        self.url = url
+        self.download_path = download_path
+        self.callback = callback
+
+    def run(self):
+        try:
+            channelData.videos_to_download = [(self.title, self.url, None)]
+            channelData.download_videos(self.download_path, self.callback)
+
+            self.video_downloaded.emit(self.title)
+        except Exception as e:
+            print(e)
+
+
 class DownloadButton(QPushButton):
     def __init__(self, row, title, url, list):
         super(DownloadButton, self).__init__("Download")
@@ -53,13 +73,20 @@ class DownloadButton(QPushButton):
         self.clicked.connect(self.download_audio)
 
     def download_audio(self):
-        if not self.list.download_path:  # Show an alert if download_path is empty
+        if not self.list.download_path:
             self.list.handle_download_error(
                 "Please select a download folder before downloading."
             )
         else:
-            channelData.videos_to_download = [(self.title, self.url, None)]
-            channelData.download_videos(self.list.download_path, self.list.show_message)
+            # Start a new thread for downloading
+            self.thread = VideoDownloaderThread(
+                self.title, self.url, self.list.download_path, self.list.show_message
+            )
+            self.thread.video_downloaded.connect(self.video_downloaded)
+            self.thread.start()
+
+    def video_downloaded(self, title):
+        self.list.show_message(f"Video '{title}' downloaded successfully.")
 
 
 class VideoLoaderThread(QThread):
