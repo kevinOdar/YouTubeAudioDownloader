@@ -86,7 +86,7 @@ class DownloadButton(QPushButton):
             self.thread.start()
 
     def video_downloaded(self, title):
-        self.list.show_message(f"Video '{title}' downloaded successfully.")
+        self.list.show_message(f"'{title}' downloaded successfully.")
 
 
 class VideoLoaderThread(QThread):

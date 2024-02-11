@@ -34,11 +34,6 @@ def list_test(qtbot):
     return home_window.list
 
 
-# @pytest.fixture
-# def mocker():
-#     return Mock()
-
-
 def test_list_elements_appear(list_test, qtbot):
     assert list_test.list.spinner_label.isVisible()
     assert list_test.list.btnDownloadAll.isVisible()
@@ -85,12 +80,13 @@ def test_download_one_element(list_test, qtbot, temporal_test_folder):
     )
 
     qtbot.mouseClick(button_first_video, Qt.MouseButton.LeftButton)
+    qtbot.wait(10000)  # download time
 
     mp3_file_path = os.path.join(temporal_test_folder, "◄Slark 25mmrsec► │VOL.1│.mp3")
     assert os.path.exists(mp3_file_path)
     assert (
         list_test.list.lblMessage.text()
-    ), '"◄Slark 25mmrsec► │VOL.1│" was successfully downloaded'
+    ), '"◄Slark 25mmrsec► │VOL.1│" downloaded successfully'
 
 
 def test_shows_message_already_downloaded(list_test, qtbot, temporal_test_folder):
@@ -111,7 +107,7 @@ def test_shows_message_already_downloaded(list_test, qtbot, temporal_test_folder
     qtbot.mouseClick(button_first_video, Qt.MouseButton.LeftButton)
 
     mp3_file_path = os.path.join(temporal_test_folder, "◄Slark 25mmrsec► │VOL.1│.mp3")
-    qtbot.wait(10000)
+    qtbot.wait(10000)  # download time
 
     list_test.set_download_path(temporal_test_folder)
     button_first_video = list_test.list.tableWidget.cellWidget(0, 2).findChild(
@@ -152,4 +148,4 @@ def test_filter_and_download(list_test, qtbot, temporal_test_folder):
     assert os.path.exists(mp3_file_path2)
     assert (
         list_test.list.lblMessage.text()
-    ), '"◄Pudge 25mmr/sec► │VOL.1│" was successfully downloaded'
+    ), '"◄Pudge 25mmr/sec► │VOL.1│" downloaded successfully'
