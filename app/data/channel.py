@@ -26,7 +26,7 @@ class ChannelData:
         for title, video_url, _ in self.videos_to_download:
             try:
                 download_audio_as_mp3(title, video_url, output_directory)
-                show_message(f'"{title}" was successfully downloaded')
+                show_message(f'"{title}" downloaded successfully')
             except Exception as e:
                 show_message(str(e))
                 # raise Exception(str(e))
