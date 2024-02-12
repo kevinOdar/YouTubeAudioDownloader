@@ -70,6 +70,16 @@ class DownloadButton(QPushButton):
         self.url = url
         self.list = list
         self.setFixedSize(100, 50)
+
+        # Spinner
+        self.spinner_movie = QMovie(
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "resources/Spinner.gif"
+            )
+        )
+        self.spinner_label = QLabel()
+        self.spinner_label.setMovie(self.spinner_movie)
+        self.spinner_label.setStyleSheet("margin-left: 7px;")
         self.clicked.connect(self.download_audio)
 
     def download_audio(self):
@@ -79,11 +89,18 @@ class DownloadButton(QPushButton):
             )
         else:
             self.disable_column()
+            self.hide()
+            self.list.list.tableWidget.cellWidget(
+                self.row, self.col
+            ).layout().addWidget(self.spinner_label)
+            self.spinner_movie.start()
+
             # Start a new thread for downloading
             self.thread = VideoDownloaderThread(
                 self.title, self.url, self.list.download_path, self.list.show_message
             )
             self.thread.video_downloaded.connect(self.enable_column)
+            self.thread.finished.connect(self.hide_spinner)
             self.thread.start()
 
     def disable_column(self):
@@ -97,6 +114,12 @@ class DownloadButton(QPushButton):
             widget = self.list.list.tableWidget.cellWidget(row, 2)
             if isinstance(widget, QWidget):
                 widget.setEnabled(True)
+
+    def hide_spinner(self):
+        self.spinner_movie.stop()
+        self.spinner_label.hide()
+        # self.setEnabled(True)
+        self.show()
 
 
 class VideoLoaderThread(QThread):
