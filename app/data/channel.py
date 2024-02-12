@@ -18,15 +18,15 @@ class ChannelData:
         search = {
             "specific_word": "",
             "search_title": "",
-            "channel_url": f"https://www.youtube.com/@{channel._channel_name}/videos",
+            "channel_url": f"https://www.youtube.com/@{channel.channel_name}/videos",
         }
         return get_videos_from_channel(search)
 
     def download_videos(self, output_directory, show_message):
-        for title, video_url, _ in self.videos_to_download:
+        for video in self.videos_to_download:
             try:
-                download_audio_as_mp3(title, video_url, output_directory)
-                show_message(f'"{title}" downloaded successfully')
+                download_audio_as_mp3(video.title, video.url, output_directory)
+                show_message(f'"{video.title}" downloaded successfully')
             except Exception as e:
                 show_message(str(e))
                 # raise Exception(str(e))

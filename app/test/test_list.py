@@ -4,7 +4,7 @@ import sys
 import pytest
 from PyQt6.QtCore import Qt
 from PyQt6.QtTest import QTest
-from PyQt6.QtWidgets import QPushButton
+from PyQt6.QtWidgets import QPushButton, QLabel
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, parent_dir)
@@ -74,7 +74,6 @@ def test_download_one_element(list_test, qtbot, temporal_test_folder):
 
     # qtbot.mouseClick(list_test.list.btnSelectPath, Qt.MouseButton.LeftButton)
 
-    list_test.set_download_path(temporal_test_folder)
     button_first_video = list_test.list.tableWidget.cellWidget(0, 2).findChild(
         QPushButton
     )
@@ -122,6 +121,7 @@ def test_shows_message_already_downloaded(list_test, qtbot, temporal_test_folder
     ), '"◄Slark 25mmrsec► │VOL.1│" was already downloaded'
 
 
+@pytest.mark.only
 def test_filter_and_download(list_test, qtbot, temporal_test_folder):
     # Wait until the table is visible and populated
     qtbot.waitUntil(
@@ -139,8 +139,14 @@ def test_filter_and_download(list_test, qtbot, temporal_test_folder):
         timeout=5000,
     )
 
-    qtbot.mouseClick(list_test.list.btnDownloadAll, Qt.MouseButton.LeftButton)
+    # title_first_video = list_test.list.tableWidget.cellWidget(0, 1).text()
+    # title_second_video = list_test.list.tableWidget.cellWidget(1, 1).text()
+    
+    # assert title_first_video, "◄Pudge 25mmrsec► │VOL.2│"
+    # assert title_second_video, "◄Pudge 25mmrsec► │VOL.1│"
 
+    qtbot.mouseClick(list_test.list.btnDownloadAll, Qt.MouseButton.LeftButton)
+    qtbot.wait(15000)  # download time
     mp3_file_path1 = os.path.join(temporal_test_folder, "◄Pudge 25mmrsec► │VOL.1│.mp3")
     mp3_file_path2 = os.path.join(temporal_test_folder, "◄Pudge 25mmrsec► │VOL.2│.mp3")
     assert os.path.exists(mp3_file_path1)
