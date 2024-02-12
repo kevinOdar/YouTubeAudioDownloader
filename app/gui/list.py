@@ -78,15 +78,25 @@ class DownloadButton(QPushButton):
                 "Please select a download folder before downloading."
             )
         else:
+            self.disable_column()
             # Start a new thread for downloading
             self.thread = VideoDownloaderThread(
                 self.title, self.url, self.list.download_path, self.list.show_message
             )
-            # self.thread.video_downloaded.connect(self.video_downloaded)
+            self.thread.video_downloaded.connect(self.enable_column)
             self.thread.start()
 
-    def video_downloaded(self, title):
-        pass
+    def disable_column(self):
+        for row in range(self.list.list.tableWidget.rowCount()):
+            widget = self.list.list.tableWidget.cellWidget(row, 2)
+            if isinstance(widget, QWidget):
+                widget.setEnabled(False)
+
+    def enable_column(self):
+        for row in range(self.list.list.tableWidget.rowCount()):
+            widget = self.list.list.tableWidget.cellWidget(row, 2)
+            if isinstance(widget, QWidget):
+                widget.setEnabled(True)
 
 
 class VideoLoaderThread(QThread):

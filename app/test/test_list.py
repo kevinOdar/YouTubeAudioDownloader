@@ -122,7 +122,6 @@ def test_shows_message_already_downloaded(list_test, qtbot, temporal_test_folder
     ), '"◄Slark 25mmrsec► │VOL.1│" was already downloaded'
 
 
-# @pytest.mark.only
 def test_filter_and_download(list_test, qtbot, temporal_test_folder):
     # Wait until the table is visible and populated
     qtbot.waitUntil(
@@ -149,3 +148,25 @@ def test_filter_and_download(list_test, qtbot, temporal_test_folder):
     assert (
         list_test.list.lblMessage.text()
     ), '"◄Pudge 25mmr/sec► │VOL.1│" downloaded successfully'
+
+
+# @pytest.mark.only
+def test_download_button_is_blocked_until_download_finishes(
+    list_test, qtbot, temporal_test_folder
+):
+    qtbot.waitUntil(
+        lambda: list_test.list.tableWidget.isVisible()
+        and list_test.list.tableWidget.rowCount() > 0,
+        timeout=60000,
+    )
+
+    list_test.set_download_path(temporal_test_folder)
+    button_third_video = list_test.list.tableWidget.cellWidget(2, 2).findChild(
+        QPushButton
+    )
+
+    qtbot.mouseClick(button_third_video, Qt.MouseButton.LeftButton)
+
+    assert not button_third_video.isEnabled()
+    qtbot.wait(10000)  # download time
+    assert button_third_video.isEnabled()
