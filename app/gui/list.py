@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import (
     QMessageBox,
 )
 from PyQt6.QtGui import QPixmap, QMovie
-from PyQt6.QtCore import QUrl, Qt, QThread, pyqtSignal
+from PyQt6.QtCore import QUrl, Qt, QThread, pyqtSignal, QTimer
 from data.channel import ChannelData
 from model.channel import Channel
 from model.video import Video
@@ -184,6 +184,10 @@ class ListWindow:
         self.list.txtFilter.textChanged.connect(self.update_filter_text)
         self.filtered_videos = self.video_loader_thread.availableVideos
 
+        # Download All
+        self.list.btnDownloadAll.setEnabled(False)
+        self.list.btnDownloadAll.clicked.connect(self.download_all)
+
     def update_filter_text(self):
         self.filtered_videos = [
             Video(title, url, thumbnail_url)
@@ -194,11 +198,10 @@ class ListWindow:
 
     def handle_video_loading(self, availableVideos):
         # This method is called when video loading is complete
-        # Perform operations that depend on the loaded videos here
         self.list.txtFilter.setEnabled(True)
+        self.list.btnDownloadAll.setEnabled(True)
         self.list.spinner_label.hide()
         try:
-            self.list.btnDownloadAll.clicked.connect(self.download_all)
 
             self.list.tableWidget.setRowCount(len(availableVideos))
             for i, (title, url, thumbnail_url) in enumerate(availableVideos):
@@ -233,8 +236,28 @@ class ListWindow:
                 "Please select a download folder before downloading."
             )
         else:
-            channelData.videos_to_download = self.filtered_videos
-            channelData.download_videos(self.download_path, self.show_message)
+            self.download_next(0)
+
+    def download_next(self, row):
+        if row < self.list.tableWidget.rowCount():
+            download_button = self.list.tableWidget.cellWidget(row, 2).findChild(
+                QPushButton
+            )
+            if download_button.isEnabled():
+                download_button.click()
+                QTimer.singleShot(1000, lambda: self.download_next(row + 1))
+            else:
+                QTimer.singleShot(500, lambda: self.download_next(row))
+        else:
+            self.show_message("All downloads completed!")
+
+    def handle_download_completed(self):
+        self.list.spinner_label.hide()
+        self.list.tableWidget.setEnabled(True)
+
+    def cleanup_thread(self):
+        self.video_loader_thread.finished.disconnect()
+        self.video_loader_thread.deleteLater()
 
     def back_home(self):
         from gui.home import Home

@@ -37,6 +37,9 @@ def list_test(qtbot):
 def test_list_elements_appear(list_test, qtbot):
     assert list_test.list.spinner_label.isVisible()
     assert list_test.list.btnDownloadAll.isVisible()
+    assert not list_test.list.btnDownloadAll.isEnabled()
+    assert list_test.list.txtFilter.isVisible()
+    assert not list_test.list.txtFilter.isEnabled()
     assert list_test.list.lblSelectedPath.isVisible()
     assert list_test.list.btnBack.isVisible()
     assert list_test.list.tableWidget.isVisible()
@@ -64,7 +67,7 @@ def test_list_shows_elements(list_test, qtbot):
     assert button_latest_video.text(), "Download"
 
 
-#@pytest.mark.only
+# @pytest.mark.only
 def test_download_one_element(list_test, qtbot, temporal_test_folder):
 
     qtbot.waitUntil(
