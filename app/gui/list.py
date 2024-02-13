@@ -44,25 +44,19 @@ class ImageWidget(QLabel):
 
 
 class VideoDownloaderThread(QThread):
-    video_downloaded = pyqtSignal(str)
+    video_downloaded = pyqtSignal()
 
     def __init__(self, videos: List[Video], download_path, callback):
-        # def __init__(self, title, url, download_path, callback):
         super().__init__()
-        # self.title = title
-        # self.url = url
         self.videos = videos
         self.download_path = download_path
         self.callback = callback
 
     def run(self):
         try:
-            # channelData.videos_to_download = [(self.title, self.url, None)]
             channelData.videos_to_download = self.videos
             channelData.download_videos(self.download_path, self.callback)
-
-            # self.video_downloaded.emit(self.title)
-            self.video_downloaded.emit(self.videos[0].title)
+            self.video_downloaded.emit()
         except Exception as e:
             print(e)
 
@@ -126,7 +120,6 @@ class DownloadButton(QPushButton):
     def hide_spinner(self):
         self.spinner_movie.stop()
         self.spinner_label.hide()
-        # self.setEnabled(True)
         self.show()
 
 
@@ -268,5 +261,5 @@ class ListWindow:
     def show_message(self, message):
         self.list.lblMessage.setText(message)
 
-    def set_download_path(self, path):  # testing purpose
+    def set_download_path(self, path):  # Testing purpose
         self.download_path = path
