@@ -2,6 +2,7 @@ import os
 import sys
 
 from model.channel import Channel
+from model.video import Video
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 parent_dir = os.path.join(parent_dir, "..")
@@ -20,7 +21,7 @@ class ChannelData:
             "search_title": "",
             "channel_url": f"https://www.youtube.com/@{channel.channel_name}/videos",
         }
-        return get_videos_from_channel(search)
+        return [Video(*video_tuple) for video_tuple in get_videos_from_channel(search)]
 
     def download_videos(self, output_directory, show_message):
         for video in self.videos_to_download:

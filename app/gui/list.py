@@ -103,10 +103,9 @@ class DownloadButton(QPushButton):
 
             # Start a new thread for downloading
             self.thread = VideoDownloaderThread(
-                [Video(self.title, self.url)],
+                [Video(self.title, self.url, "")],
                 self.list.download_path,
                 self.list.show_message,
-                # self.title, self.url, self.list.download_path, self.list.show_message
             )
             self.thread.video_downloaded.connect(self.enable_column)
             self.thread.finished.connect(self.hide_spinner)

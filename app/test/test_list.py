@@ -64,6 +64,7 @@ def test_list_shows_elements(list_test, qtbot):
     assert button_latest_video.text(), "Download"
 
 
+#@pytest.mark.only
 def test_download_one_element(list_test, qtbot, temporal_test_folder):
 
     qtbot.waitUntil(
@@ -73,7 +74,7 @@ def test_download_one_element(list_test, qtbot, temporal_test_folder):
     )
 
     # qtbot.mouseClick(list_test.list.btnSelectPath, Qt.MouseButton.LeftButton)
-
+    list_test.set_download_path(temporal_test_folder)
     button_first_video = list_test.list.tableWidget.cellWidget(0, 2).findChild(
         QPushButton
     )
@@ -121,7 +122,6 @@ def test_shows_message_already_downloaded(list_test, qtbot, temporal_test_folder
     ), '"◄Slark 25mmrsec► │VOL.1│" was already downloaded'
 
 
-@pytest.mark.only
 def test_filter_and_download(list_test, qtbot, temporal_test_folder):
     # Wait until the table is visible and populated
     qtbot.waitUntil(
@@ -141,7 +141,7 @@ def test_filter_and_download(list_test, qtbot, temporal_test_folder):
 
     # title_first_video = list_test.list.tableWidget.cellWidget(0, 1).text()
     # title_second_video = list_test.list.tableWidget.cellWidget(1, 1).text()
-    
+
     # assert title_first_video, "◄Pudge 25mmrsec► │VOL.2│"
     # assert title_second_video, "◄Pudge 25mmrsec► │VOL.1│"
 
