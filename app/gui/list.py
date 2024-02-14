@@ -62,7 +62,7 @@ class VideoDownloaderThread(QThread):
 
 
 class DownloadButton(QPushButton):
-    def __init__(self, row, title, url, list):
+    def __init__(self, row: str, title: str, url: str, list):
         super(DownloadButton, self).__init__("Download")
         self.row = row
         self.col = 2
@@ -126,7 +126,7 @@ class DownloadButton(QPushButton):
 class VideoLoaderThread(QThread):
     video_loaded = pyqtSignal(list)
 
-    def __init__(self, channel):
+    def __init__(self, channel: Channel):
         super().__init__()
         self.channel = channel
         self.availableVideos = []
@@ -196,7 +196,7 @@ class ListWindow:
         ]
         self.handle_video_loading(self.filtered_videos)
 
-    def handle_video_loading(self, availableVideos):
+    def handle_video_loading(self, availableVideos: List[Video]):
         # This method is called when video loading is complete
         self.list.txtFilter.setEnabled(True)
         self.list.btnDownloadAll.setEnabled(True)
@@ -255,10 +255,6 @@ class ListWindow:
         self.list.spinner_label.hide()
         self.list.tableWidget.setEnabled(True)
 
-    def cleanup_thread(self):
-        self.video_loader_thread.finished.disconnect()
-        self.video_loader_thread.deleteLater()
-
     def back_home(self):
         from gui.home import Home
 
@@ -273,7 +269,7 @@ class ListWindow:
             self.download_path = selected_path
             self.list.lblSelectedPath.setText("../" + os.path.basename(selected_path))
 
-    def handle_download_error(self, error_message):
+    def handle_download_error(self, error_message: str):
         QMessageBox.critical(
             self.list,
             "Error",
@@ -281,8 +277,8 @@ class ListWindow:
             QMessageBox.StandardButton.Ok,
         )
 
-    def show_message(self, message):
+    def show_message(self, message: str):
         self.list.lblMessage.setText(message)
 
-    def set_download_path(self, path):  # Testing purpose
+    def set_download_path(self, path: str):  # Testing purpose
         self.download_path = path

@@ -1,5 +1,5 @@
 class Video:
-    def __init__(self, title, url, thumbnail_url) -> None:
+    def __init__(self, title: str, url: str, thumbnail_url: str) -> None:
         self.title = title
         self.url = url
         self.thumbnail_url = thumbnail_url
