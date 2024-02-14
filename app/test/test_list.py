@@ -159,7 +159,6 @@ def test_filter_and_download(list_test, qtbot, temporal_test_folder):
     ), '"◄Pudge 25mmr/sec► │VOL.1│" downloaded successfully'
 
 
-# @pytest.mark.only
 def test_download_button_is_blocked_until_download_finishes(
     list_test, qtbot, temporal_test_folder
 ):

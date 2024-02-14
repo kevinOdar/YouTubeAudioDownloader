@@ -137,6 +137,12 @@ class ListWindow:
     def __init__(self, channel: Channel) -> None:
         self.list = uic.loadUi("gui/list.ui")
 
+        # Video loading thread
+        self.video_loader_thread = VideoLoaderThread(channel)
+        self.video_loader_thread.video_loaded.connect(self.handle_video_loading)
+        self.video_loader_thread.start()
+
+        # Message Label
         self.list.lblMessage.setText("")
 
         # Back Button
@@ -165,17 +171,12 @@ class ListWindow:
         layout = QVBoxLayout(self.list)
         layout.addWidget(self.list.spinner_label)
 
-        self.list.show()  # Show the main window before starting the video loading thread
-
-        # Video loading thread
-        self.video_loader_thread = VideoLoaderThread(channel)
-        self.video_loader_thread.video_loaded.connect(self.handle_video_loading)
-        self.video_loader_thread.start()
-
         # Layout - Columns
         self.list.tableWidget.setColumnWidth(0, 298)
         self.list.tableWidget.setColumnWidth(1, 330)  # 355 without vertical bar
         self.list.tableWidget.setColumnWidth(2, 120)
+
+        self.list.show()  # Show the main window before starting the video loading thread
 
         # Filtering
         self.list.txtFilter.textChanged.connect(self.update_filter_text)
@@ -187,9 +188,9 @@ class ListWindow:
 
     def update_filter_text(self):
         self.filtered_videos = [
-            Video(title, url, thumbnail_url)
-            for title, url, thumbnail_url in self.video_loader_thread.availableVideos
-            if self.list.txtFilter.text().lower() in title.lower()
+            video
+            for video in self.video_loader_thread.availableVideos
+            if self.list.txtFilter.text().lower() in video.title.lower()
         ]
         self.handle_video_loading(self.filtered_videos)
 
