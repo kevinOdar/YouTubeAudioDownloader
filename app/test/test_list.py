@@ -4,17 +4,16 @@ import sys
 import pytest
 from PyQt6.QtCore import Qt
 from PyQt6.QtTest import QTest
-from PyQt6.QtWidgets import QPushButton, QLabel
+from PyQt6.QtWidgets import QPushButton
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, parent_dir)
 
 from gui.home import Home
-import pytest
 
 
 @pytest.fixture
-def temporal_test_folder():
+def temporary_test_folder():
     test_directory = os.path.dirname(__file__)
     temp_folder = os.path.join(test_directory, "test_folder")
     os.makedirs(temp_folder)
@@ -23,7 +22,7 @@ def temporal_test_folder():
 
 
 @pytest.fixture
-def list_test(qtbot):
+def list_window_fixture(qtbot):
     home_window = Home()
     qtbot.addWidget(home_window)
     channel_name = "NonExistentChannel"
@@ -34,144 +33,132 @@ def list_test(qtbot):
     return home_window.list
 
 
-def test_list_elements_appear(list_test, qtbot):
-    assert list_test.list.spinner_label.isVisible()
-    assert list_test.list.btnDownloadAll.isVisible()
-    assert not list_test.list.btnDownloadAll.isEnabled()
-    assert list_test.list.txtFilter.isVisible()
-    assert not list_test.list.txtFilter.isEnabled()
-    assert list_test.list.lblSelectedPath.isVisible()
-    assert list_test.list.btnBack.isVisible()
-    assert list_test.list.tableWidget.isVisible()
+def test_list_elements_appear(list_window_fixture, qtbot):
+    list_widget = list_window_fixture.list_widget
+    assert list_widget.spinner_label.isVisible()
+    assert list_widget.btnDownloadAll.isVisible()
+    assert not list_widget.btnDownloadAll.isEnabled()
+    assert list_widget.txtFilter.isVisible()
+    assert not list_widget.txtFilter.isEnabled()
+    assert list_widget.lblSelectedPath.isVisible()
+    assert list_widget.btnBack.isVisible()
+    assert list_widget.tableWidget.isVisible()
 
 
-def test_list_shows_elements(list_test, qtbot):
+def test_list_shows_elements(list_window_fixture, qtbot):
+    list_widget = list_window_fixture.list_widget
     qtbot.waitUntil(
-        lambda: list_test.list.tableWidget.isVisible()
-        and list_test.list.tableWidget.rowCount() > 0,
+        lambda: list_widget.tableWidget.isVisible()
+        and list_widget.tableWidget.rowCount() > 0,
         timeout=50000,
     )
 
-    assert list_test.list.tableWidget.rowCount(), 7  # 7 videos
+    assert list_widget.tableWidget.rowCount() == 7  # 7 videos
 
-    button_first_video = list_test.list.tableWidget.cellWidget(0, 2).findChild(
-        QPushButton
-    )
-    button_latest_video = list_test.list.tableWidget.cellWidget(6, 2).findChild(
+    button_first_video = list_widget.tableWidget.cellWidget(0, 2).findChild(QPushButton)
+    button_latest_video = list_widget.tableWidget.cellWidget(6, 2).findChild(
         QPushButton
     )
 
     assert isinstance(button_first_video, QPushButton)
     assert isinstance(button_latest_video, QPushButton)
-    assert button_first_video.text(), "Download"
-    assert button_latest_video.text(), "Download"
+    assert button_first_video.text() == "Download"
+    assert button_latest_video.text() == "Download"
 
 
-# @pytest.mark.only
-def test_download_one_element(list_test, qtbot, temporal_test_folder):
+def test_download_one_element(list_window_fixture, qtbot, temporary_test_folder):
 
+    list_widget = list_window_fixture.list_widget
     qtbot.waitUntil(
-        lambda: list_test.list.tableWidget.isVisible()
-        and list_test.list.tableWidget.rowCount() > 0,
+        lambda: list_widget.tableWidget.isVisible()
+        and list_widget.tableWidget.rowCount() > 0,
         timeout=60000,
     )
 
-    # qtbot.mouseClick(list_test.list.btnSelectPath, Qt.MouseButton.LeftButton)
-    list_test.set_download_path(temporal_test_folder)
-    button_first_video = list_test.list.tableWidget.cellWidget(0, 2).findChild(
-        QPushButton
-    )
+    list_window_fixture.set_download_path(temporary_test_folder)
+    button_first_video = list_widget.tableWidget.cellWidget(0, 2).findChild(QPushButton)
 
     qtbot.mouseClick(button_first_video, Qt.MouseButton.LeftButton)
     qtbot.wait(10000)  # download time
 
-    mp3_file_path = os.path.join(temporal_test_folder, "◄Slark 25mmrsec► │VOL.1│.mp3")
+    mp3_file_path = os.path.join(temporary_test_folder, "◄Slark 25mmrsec► │VOL.1│.mp3")
     assert os.path.exists(mp3_file_path)
+
     assert (
-        list_test.list.lblMessage.text()
-    ), '"◄Slark 25mmrsec► │VOL.1│" downloaded successfully'
+        list_widget.lblMessage.text()
+    ) == '"◄Slark 25mmr/sec► │VOL.1│" downloaded successfully'
 
 
-def test_shows_message_already_downloaded(list_test, qtbot, temporal_test_folder):
+@pytest.mark.only
+def test_shows_message_already_downloaded(
+    list_window_fixture, qtbot, temporary_test_folder
+):
 
+    list_widget = list_window_fixture.list_widget
     qtbot.waitUntil(
-        lambda: list_test.list.tableWidget.isVisible()
-        and list_test.list.tableWidget.rowCount() > 0,
+        lambda: list_widget.tableWidget.isVisible()
+        and list_widget.tableWidget.rowCount() > 0,
         timeout=60000,
     )
 
-    # qtbot.mouseClick(list_test.list.btnSelectPath, Qt.MouseButton.LeftButton)
-
-    list_test.set_download_path(temporal_test_folder)
-    button_first_video = list_test.list.tableWidget.cellWidget(0, 2).findChild(
-        QPushButton
-    )
+    list_window_fixture.set_download_path(temporary_test_folder)
+    button_first_video = list_widget.tableWidget.cellWidget(0, 2).findChild(QPushButton)
 
     qtbot.mouseClick(button_first_video, Qt.MouseButton.LeftButton)
 
-    mp3_file_path = os.path.join(temporal_test_folder, "◄Slark 25mmrsec► │VOL.1│.mp3")
+    mp3_file_path = os.path.join(temporary_test_folder, "◄Slark 25mmrsec► │VOL.1│.mp3")
     qtbot.wait(10000)  # download time
 
-    list_test.set_download_path(temporal_test_folder)
-    button_first_video = list_test.list.tableWidget.cellWidget(0, 2).findChild(
-        QPushButton
-    )
-
     qtbot.mouseClick(button_first_video, Qt.MouseButton.LeftButton)
+
+    qtbot.wait(5000)
 
     assert os.path.exists(mp3_file_path)
     assert (
-        list_test.list.lblMessage.text()
-    ), '"◄Slark 25mmrsec► │VOL.1│" was already downloaded'
+        list_widget.lblMessage.text()
+    ) == '"◄Slark 25mmr/sec► │VOL.1│" was already downloaded'
 
 
-def test_filter_and_download(list_test, qtbot, temporal_test_folder):
-    # Wait until the table is visible and populated
+def test_filter_and_download(list_window_fixture, qtbot, temporary_test_folder):
+    list_widget = list_window_fixture.list_widget
     qtbot.waitUntil(
-        lambda: list_test.list.tableWidget.isVisible()
-        and list_test.list.tableWidget.rowCount() > 0,
+        lambda: list_widget.tableWidget.isVisible()
+        and list_widget.tableWidget.rowCount() > 0,
         timeout=60000,
     )
 
-    list_test.set_download_path(temporal_test_folder)
+    list_window_fixture.set_download_path(temporary_test_folder)
 
-    qtbot.keyClicks(list_test.list.txtFilter, "pudge")
+    qtbot.keyClicks(list_widget.txtFilter, "pudge")
 
     qtbot.waitUntil(
-        lambda: list_test.list.tableWidget.rowCount() == 2,
+        lambda: list_widget.tableWidget.rowCount() == 2,
         timeout=5000,
     )
 
-    # title_first_video = list_test.list.tableWidget.cellWidget(0, 1).text()
-    # title_second_video = list_test.list.tableWidget.cellWidget(1, 1).text()
-
-    # assert title_first_video, "◄Pudge 25mmrsec► │VOL.2│"
-    # assert title_second_video, "◄Pudge 25mmrsec► │VOL.1│"
-
-    qtbot.mouseClick(list_test.list.btnDownloadAll, Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(list_widget.btnDownloadAll, Qt.MouseButton.LeftButton)
     qtbot.wait(15000)  # download time
-    mp3_file_path1 = os.path.join(temporal_test_folder, "◄Pudge 25mmrsec► │VOL.1│.mp3")
-    mp3_file_path2 = os.path.join(temporal_test_folder, "◄Pudge 25mmrsec► │VOL.2│.mp3")
+    mp3_file_path1 = os.path.join(temporary_test_folder, "◄Pudge 25mmrsec► │VOL.1│.mp3")
+    mp3_file_path2 = os.path.join(temporary_test_folder, "◄Pudge 25mmrsec► │VOL.2│.mp3")
     assert os.path.exists(mp3_file_path1)
     assert os.path.exists(mp3_file_path2)
     assert (
-        list_test.list.lblMessage.text()
-    ), '"◄Pudge 25mmr/sec► │VOL.1│" downloaded successfully'
+        list_widget.lblMessage.text()
+    ) == '"◄Pudge 25mmr/sec► │VOL.1│" downloaded successfully'
 
 
 def test_download_button_is_blocked_until_download_finishes(
-    list_test, qtbot, temporal_test_folder
+    list_window_fixture, qtbot, temporary_test_folder
 ):
+    list_widget = list_window_fixture.list_widget
     qtbot.waitUntil(
-        lambda: list_test.list.tableWidget.isVisible()
-        and list_test.list.tableWidget.rowCount() > 0,
+        lambda: list_widget.tableWidget.isVisible()
+        and list_widget.tableWidget.rowCount() > 0,
         timeout=60000,
     )
 
-    list_test.set_download_path(temporal_test_folder)
-    button_third_video = list_test.list.tableWidget.cellWidget(2, 2).findChild(
-        QPushButton
-    )
+    list_window_fixture.set_download_path(temporary_test_folder)
+    button_third_video = list_widget.tableWidget.cellWidget(2, 2).findChild(QPushButton)
 
     qtbot.mouseClick(button_third_video, Qt.MouseButton.LeftButton)
 

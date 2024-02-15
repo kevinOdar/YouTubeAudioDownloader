@@ -73,12 +73,12 @@ class VideoDownloaderThread(QThread):
 
 
 class DownloadButton(QPushButton):
-    def __init__(self, row, video: Video, list):
+    def __init__(self, row, video: Video, list_widget):
         super(DownloadButton, self).__init__("Download")
         self.row = row
         self.col = 2
         self.video = video
-        self.list = list
+        self.list_widget = list_widget
         self.setFixedSize(100, 50)
 
         # Spinner
@@ -90,14 +90,14 @@ class DownloadButton(QPushButton):
         self.clicked.connect(self.download_audio)
 
     def download_audio(self):
-        if not self.list.download_path:
-            self.list.handle_download_error(
+        if not self.list_widget.download_path:
+            self.list_widget.handle_download_error(
                 "Please select a download folder before downloading."
             )
         else:
             self.enable_column(False)
             self.hide()
-            self.list.list.tableWidget.cellWidget(
+            self.list_widget.list_widget.tableWidget.cellWidget(
                 self.row, self.col
             ).layout().addWidget(self.spinner_label)
             self.spinner_movie.start()
@@ -105,16 +105,16 @@ class DownloadButton(QPushButton):
             # Thread for downloading
             self.thread = VideoDownloaderThread(
                 [self.video],
-                self.list.download_path,
-                self.list.show_message,
+                self.list_widget.download_path,
+                self.list_widget.show_message,
             )
             self.thread.video_downloaded.connect(self.enable_column)
             self.thread.finished.connect(self.hide_spinner)
             self.thread.start()
 
     def enable_column(self, enable=True):
-        for row in range(self.list.list.tableWidget.rowCount()):
-            widget = self.list.list.tableWidget.cellWidget(row, 2)
+        for row in range(self.list_widget.list_widget.tableWidget.rowCount()):
+            widget = self.list_widget.list_widget.tableWidget.cellWidget(row, 2)
             if isinstance(widget, QWidget):
                 widget.setEnabled(enable)
 
@@ -142,7 +142,7 @@ class VideoLoaderThread(QThread):
 
 class ListWindow:
     def __init__(self, channel: Channel) -> None:
-        self.list = uic.loadUi("gui/list.ui")
+        self.list_widget = uic.loadUi("gui/list.ui")
 
         # Video loading thread
         self.video_loader_thread = VideoLoaderThread(channel)
@@ -150,73 +150,76 @@ class ListWindow:
         self.video_loader_thread.start()
 
         # Message Label
-        self.list.lblMessage.setText("")
+        self.list_widget.lblMessage.setText("")
 
         # Back Button
-        self.list.btnBack.setIcon(
+        self.list_widget.btnBack.setIcon(
             QApplication.style().standardIcon(QStyle.StandardPixmap.SP_ArrowBack)
         )
-        self.list.btnBack.setToolTip("Return")
-        self.list.btnBack.clicked.connect(self.back_home)
+        self.list_widget.btnBack.setToolTip("Return")
+        self.list_widget.btnBack.clicked.connect(self.back_home)
 
         # Path selection
         self.download_path = ""
-        self.list.btnSelectPath.setToolTip("Select Download Folder")
-        self.list.btnSelectPath.clicked.connect(self.select_download_path)
-        self.list.btnSelectPath.setIcon(
+        self.list_widget.btnSelectPath.setToolTip("Select Download Folder")
+        self.list_widget.btnSelectPath.clicked.connect(self.select_download_path)
+        self.list_widget.btnSelectPath.setIcon(
             QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DirIcon)
         )
 
         # Spinner
         spinner_movie = QMovie(SPINNER_PATH)
-        self.list.spinner_label.setMovie(spinner_movie)
+        self.list_widget.spinner_label.setMovie(spinner_movie)
         spinner_movie.start()
-        layout = QVBoxLayout(self.list)
-        layout.addWidget(self.list.spinner_label)
+        layout = QVBoxLayout(self.list_widget)
+        layout.addWidget(self.list_widget.spinner_label)
 
         # Layout - Columns
-        self.list.tableWidget.setColumnWidth(0, THUMBNAIL_COLUMN_WIDTH)
-        self.list.tableWidget.setColumnWidth(1, TITLE_COLUMN_WIDTH)
-        self.list.tableWidget.setColumnWidth(2, BUTTON_COLUMN_WIDTH)
+        self.list_widget.tableWidget.setColumnWidth(0, THUMBNAIL_COLUMN_WIDTH)
+        self.list_widget.tableWidget.setColumnWidth(1, TITLE_COLUMN_WIDTH)
+        self.list_widget.tableWidget.setColumnWidth(2, BUTTON_COLUMN_WIDTH)
 
-        self.list.show()  # Show the main window before starting the video loading thread
+        self.list_widget.show()  # Show the main window before starting the video loading thread
 
         # Filtering
-        self.list.txtFilter.textChanged.connect(self.update_filter_text)
+        self.list_widget.txtFilter.textChanged.connect(self.update_filter_text)
         self.filtered_videos = self.video_loader_thread.availableVideos
 
         # Download All
-        self.list.btnDownloadAll.setEnabled(False)
-        self.list.btnDownloadAll.clicked.connect(self.download_all)
+        self.list_widget.btnDownloadAll.setEnabled(False)
+        self.list_widget.btnDownloadAll.clicked.connect(self.download_all)
 
     def update_filter_text(self):
         self.filtered_videos = list(
             filter(
-                lambda video: self.list.txtFilter.text().lower() in video.title.lower(),
+                lambda video: self.list_widget.txtFilter.text().lower()
+                in video.title.lower(),
                 self.video_loader_thread.availableVideos,
             )
         )
         self.handle_video_loading(self.filtered_videos)
 
     def handle_video_loading(self, availableVideos: List[Video]):
-        self.list.txtFilter.setEnabled(True)
-        self.list.btnDownloadAll.setEnabled(True)
-        self.list.spinner_label.hide()
+        self.list_widget.txtFilter.setEnabled(True)
+        self.list_widget.btnDownloadAll.setEnabled(True)
+        self.list_widget.spinner_label.hide()
         try:
 
-            self.list.tableWidget.setRowCount(len(availableVideos))
+            self.list_widget.tableWidget.setRowCount(len(availableVideos))
             for i, (title, url, thumbnail_url) in enumerate(availableVideos):
-                self.list.tableWidget.setRowHeight(i, 200)  # 166 original on youtube
+                self.list_widget.tableWidget.setRowHeight(
+                    i, 200
+                )  # 166 original on youtube
 
                 # First column
                 image = ImageWidget(thumbnail_url)
-                self.list.tableWidget.setCellWidget(i, 0, image)
+                self.list_widget.tableWidget.setCellWidget(i, 0, image)
 
                 # Second column
                 text_label = QLabel(title)
                 text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 text_label.setWordWrap(True)
-                self.list.tableWidget.setCellWidget(i, 1, text_label)
+                self.list_widget.tableWidget.setCellWidget(i, 1, text_label)
 
                 # Third column
                 download_button = DownloadButton(i, Video(title, url, ""), self)
@@ -224,7 +227,7 @@ class ListWindow:
                 container_layout = QVBoxLayout(container_widget)
                 container_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 container_layout.addWidget(download_button)
-                self.list.tableWidget.setCellWidget(i, 2, container_widget)
+                self.list_widget.tableWidget.setCellWidget(i, 2, container_widget)
 
         except Exception as e:
             print(e)
@@ -240,8 +243,8 @@ class ListWindow:
             self.download_next(0)
 
     def download_next(self, row):
-        if row < self.list.tableWidget.rowCount():
-            download_button = self.list.tableWidget.cellWidget(row, 2).findChild(
+        if row < self.list_widget.tableWidget.rowCount():
+            download_button = self.list_widget.tableWidget.cellWidget(row, 2).findChild(
                 QPushButton
             )
             if download_button.isEnabled():
@@ -253,33 +256,35 @@ class ListWindow:
             self.show_message("All downloads completed!")
 
     def handle_download_completed(self):
-        self.list.spinner_label.hide()
-        self.list.tableWidget.setEnabled(True)
+        self.list_widget.spinner_label.hide()
+        self.list_widget.tableWidget.setEnabled(True)
 
     def back_home(self):
         from gui.home import Home
 
         self.home = Home()
-        self.list.hide()
+        self.list_widget.hide()
 
     def select_download_path(self):
         selected_path = QFileDialog.getExistingDirectory(
-            self.list, "Select Download Folder", self.download_path
+            self.list_widget, "Select Download Folder", self.download_path
         )
         if selected_path:  # Only if the user updates the downloads path
             self.download_path = selected_path
-            self.list.lblSelectedPath.setText("../" + os.path.basename(selected_path))
+            self.list_widget.lblSelectedPath.setText(
+                "../" + os.path.basename(selected_path)
+            )
 
     def handle_download_error(self, error_message: str):
         QMessageBox.critical(
-            self.list,
+            self.list_widget,
             "Error",
             error_message,
             QMessageBox.StandardButton.Ok,
         )
 
     def show_message(self, message: str):
-        self.list.lblMessage.setText(message)
+        self.list_widget.lblMessage.setText(message)
 
     def set_download_path(self, path: str):  # Testing purpose
         self.download_path = path

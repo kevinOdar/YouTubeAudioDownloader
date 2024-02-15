@@ -123,7 +123,7 @@ def test_only_download_one_video(delete_test_files, capsys):
     )
 
     with pytest.raises(
-        Exception, match="Ivy Queen: Tiny Desk Concert was already downloaded"
+        Exception, match='"Ivy Queen: Tiny Desk Concert" was already downloaded'
     ):
         downloader.download_audio_as_mp3(
             expected_videos[0][0], expected_videos[0][1], output_directory
@@ -135,5 +135,5 @@ def test_only_download_one_video(delete_test_files, capsys):
 
     assert (
         captured_already_downloaded_text.out
-        == "Ivy Queen: Tiny Desk Concert was already downloaded\n"
+        == '"Ivy Queen: Tiny Desk Concert" was already downloaded\n'
     )
