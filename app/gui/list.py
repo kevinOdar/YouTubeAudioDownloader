@@ -17,10 +17,21 @@ from model.channel import Channel
 from model.video import Video
 from typing import List
 
-channelData = ChannelData()
+# Constants
+THUMBNAIL_COLUMN_WIDTH = 298
+TITLE_COLUMN_WIDTH = 330  # 355 without vertical bar
+BUTTON_COLUMN_WIDTH = 120
+SPINNER_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "resources/Spinner.gif"
+)
+
+# Instance of ChannelData
+channel_data = ChannelData()
 
 
 class ImageWidget(QLabel):
+    """Widget to display images downloaded from a URL."""
+
     def __init__(self, imageUrl):
         super(ImageWidget, self).__init__()
         self.network_manager = QtNetwork.QNetworkAccessManager(self)
@@ -54,8 +65,8 @@ class VideoDownloaderThread(QThread):
 
     def run(self):
         try:
-            channelData.videos_to_download = self.videos
-            channelData.download_videos(self.download_path, self.callback)
+            channel_data.videos_to_download = self.videos
+            channel_data.download_videos(self.download_path, self.callback)
             self.video_downloaded.emit()
         except Exception as e:
             print(e)
@@ -71,11 +82,7 @@ class DownloadButton(QPushButton):
         self.setFixedSize(100, 50)
 
         # Spinner
-        self.spinner_movie = QMovie(
-            os.path.join(
-                os.path.dirname(os.path.abspath(__file__)), "resources/Spinner.gif"
-            )
-        )
+        self.spinner_movie = QMovie(SPINNER_PATH)
         self.spinner_label = QLabel()
         self.spinner_label.setMovie(self.spinner_movie)
         self.spinner_label.setStyleSheet("margin-left: 7px;")
@@ -127,7 +134,7 @@ class VideoLoaderThread(QThread):
 
     def run(self):
         try:
-            self.availableVideos = channelData.get_videos(self.channel)
+            self.availableVideos = channel_data.get_videos(self.channel)
             self.video_loaded.emit(self.availableVideos)
         except Exception as e:
             print(e)
@@ -161,20 +168,16 @@ class ListWindow:
         )
 
         # Spinner
-        spinner_movie = QMovie(
-            os.path.join(
-                os.path.dirname(os.path.abspath(__file__)), "resources/Spinner.gif"
-            )
-        )
+        spinner_movie = QMovie(SPINNER_PATH)
         self.list.spinner_label.setMovie(spinner_movie)
         spinner_movie.start()
         layout = QVBoxLayout(self.list)
         layout.addWidget(self.list.spinner_label)
 
         # Layout - Columns
-        self.list.tableWidget.setColumnWidth(0, 298)
-        self.list.tableWidget.setColumnWidth(1, 330)  # 355 without vertical bar
-        self.list.tableWidget.setColumnWidth(2, 120)
+        self.list.tableWidget.setColumnWidth(0, THUMBNAIL_COLUMN_WIDTH)
+        self.list.tableWidget.setColumnWidth(1, TITLE_COLUMN_WIDTH)
+        self.list.tableWidget.setColumnWidth(2, BUTTON_COLUMN_WIDTH)
 
         self.list.show()  # Show the main window before starting the video loading thread
 
