@@ -187,11 +187,12 @@ class ListWindow:
         self.list.btnDownloadAll.clicked.connect(self.download_all)
 
     def update_filter_text(self):
-        self.filtered_videos = [
-            video
-            for video in self.video_loader_thread.availableVideos
-            if self.list.txtFilter.text().lower() in video.title.lower()
-        ]
+        self.filtered_videos = list(
+            filter(
+                lambda video: self.list.txtFilter.text().lower() in video.title.lower(),
+                self.video_loader_thread.availableVideos,
+            )
+        )
         self.handle_video_loading(self.filtered_videos)
 
     def handle_video_loading(self, availableVideos: List[Video]):
