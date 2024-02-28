@@ -49,7 +49,6 @@ def test_download_audio_as_mp3(delete_test_files):
     file_path = os.path.join(output_directory, f"{expected_videos[0][0]}.mp3")
     video = Video(expected_videos[0][0], expected_videos[0][1], "")
     downloader.download_audio_as_mp3(
-        # expected_videos[0][0], expected_videos[0][1], output_directory
         video,
         output_directory,
     )

@@ -13,9 +13,7 @@ current_directory = os.path.dirname(os.path.abspath(__file__))
 output_directory = os.path.join(current_directory, "mp3_output")
 
 
-# def download_audio_as_mp3(title, url, output_path):
-def download_audio_as_mp3(video, output_path):
-    # video = Video(title, url, "")
+def download_audio_as_mp3(video: Video, output_path):
     file_title = re.sub(r'[\/:*?"<>|]', "", video.title)  # Remove invalid characters
     if os.path.exists(os.path.join(output_path, f"{file_title}.mp3")):
         raise Exception(f'"{video.title}" was already downloaded')
@@ -124,11 +122,12 @@ def get_videos_from_channel(channel_config):
 
 def download_videos_from_channel(channel_config):
     new_videos = get_videos_from_channel(channel_config)
-
+    new_videos2 = []
     for title, video_url, _ in new_videos:
+        video = Video(title, video_url, "")
+        new_videos2.append(video)
+    for video in new_videos2:
         try:
-            video = Video(title, video_url, "")
-            # download_audio_as_mp3(title, video_url, output_directory)
             download_audio_as_mp3(video, output_directory)
         except Exception as e:
             print(str(e))
