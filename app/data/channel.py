@@ -24,9 +24,10 @@ class ChannelData:
         return [Video(*video_tuple) for video_tuple in get_videos_from_channel(search)]
 
     def download_videos(self, output_directory, show_message):
-        for (title, url, _) in self.videos_to_download:
+        for title, url, _ in self.videos_to_download:
             try:
-                download_audio_as_mp3(title, url, output_directory)
+                video = Video(title, url, "")
+                download_audio_as_mp3(video, output_directory)
                 show_message(f'"{title}" downloaded successfully')
             except Exception as e:
                 show_message(str(e))

@@ -6,6 +6,7 @@ import pytest
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, parent_dir)
 
+from app.model.video import Video
 import downloader
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -46,8 +47,11 @@ def test_download_audio_as_mp3(delete_test_files):
     ]
 
     file_path = os.path.join(output_directory, f"{expected_videos[0][0]}.mp3")
+    video = Video(expected_videos[0][0], expected_videos[0][1], "")
     downloader.download_audio_as_mp3(
-        expected_videos[0][0], expected_videos[0][1], output_directory
+        # expected_videos[0][0], expected_videos[0][1], output_directory
+        video,
+        output_directory,
     )
 
     assert os.path.exists(file_path)
@@ -125,9 +129,8 @@ def test_only_download_one_video(delete_test_files, capsys):
     with pytest.raises(
         Exception, match='"Ivy Queen: Tiny Desk Concert" was already downloaded'
     ):
-        downloader.download_audio_as_mp3(
-            expected_videos[0][0], expected_videos[0][1], output_directory
-        )
+        video = Video(expected_videos[0][0], expected_videos[0][1], "")
+        downloader.download_audio_as_mp3(video, output_directory)
 
     capsys.readouterr()  # To catch the first printout "Downloaded audio..."
     downloader.download_videos_from_channel(channel_config)

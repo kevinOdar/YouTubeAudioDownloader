@@ -5,19 +5,23 @@ from pytube import YouTube
 import time
 import re
 import os
+from app.model.channel import Channel
+from app.model.video import Video
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
 output_directory = os.path.join(current_directory, "mp3_output")
 
 
-def download_audio_as_mp3(title, video_url, output_path):
-    file_title = re.sub(r'[\/:*?"<>|]', "", title)  # Remove invalid characters
+# def download_audio_as_mp3(title, url, output_path):
+def download_audio_as_mp3(video, output_path):
+    # video = Video(title, url, "")
+    file_title = re.sub(r'[\/:*?"<>|]', "", video.title)  # Remove invalid characters
     if os.path.exists(os.path.join(output_path, f"{file_title}.mp3")):
-        raise Exception(f'"{title}" was already downloaded')
+        raise Exception(f'"{video.title}" was already downloaded')
     else:
         try:
-            yt = YouTube(video_url)
+            yt = YouTube(video.url)
             audio_stream = yt.streams.filter(
                 only_audio=True, file_extension="mp4"
             ).first()
@@ -34,14 +38,14 @@ def download_audio_as_mp3(title, video_url, output_path):
                     print(f"Downloaded audio: {file_title}")
                 else:
                     raise FileNotFoundError(
-                        f"Error downloading audio from {video_url}: MP4 file not found or has incorrect extension"
+                        f"Error downloading audio from {video.url}: MP4 file not found or has incorrect extension"
                     )
             else:
                 raise ValueError(
-                    f"Error downloading audio from {video_url}: No MP4 audio stream found"
+                    f"Error downloading audio from {video.url}: No MP4 audio stream found"
                 )
         except Exception as e:
-            raise Exception(f"Error downloading audio from {video_url}: {str(e)}")
+            raise Exception(f"Error downloading audio from {video.url}: {str(e)}")
 
 
 def set_driver(channel_url, wait):
@@ -123,7 +127,9 @@ def download_videos_from_channel(channel_config):
 
     for title, video_url, _ in new_videos:
         try:
-            download_audio_as_mp3(title, video_url, output_directory)
+            video = Video(title, video_url, "")
+            # download_audio_as_mp3(title, video_url, output_directory)
+            download_audio_as_mp3(video, output_directory)
         except Exception as e:
             print(str(e))
     return new_videos
