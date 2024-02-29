@@ -19,11 +19,7 @@ expected_videos = []  # Used by the fixture
 def delete_test_files():
     yield
     for video in expected_videos:
-        filename = video.title  # First value of the tuple
-
-        file_path = os.path.join(
-            output_directory, re.sub(r'[\/:*?"<>|]', "", filename) + ".mp3"
-        )
+        file_path = os.path.join(output_directory, video.filename + ".mp3")
         if os.path.exists(file_path):
             os.remove(file_path)
 
@@ -101,14 +97,12 @@ def test_download_videos_from_channel_all_videos(delete_test_files):
         assert video1.thumbnail_url == video2.thumbnail_url
 
     downloader.download_videos_from_channel(channel_config)
-    for title, _, _ in expected_videos:
-        expected_file_path = os.path.join(
-            output_directory, re.sub(r'[\/:*?"<>|]', "", title) + ".mp3"
-        )
+    for video in expected_videos:
+        expected_file_path = os.path.join(output_directory, video.filename + ".mp3")
         assert os.path.exists(expected_file_path)
 
 
-#@pytest.mark.only
+# @pytest.mark.only
 def test_only_download_one_video(delete_test_files, capsys):
     channel_config = {
         "channel_url": "file:///"

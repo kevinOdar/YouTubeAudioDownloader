@@ -3,7 +3,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from pytube import YouTube
 import time
-import re
 import os
 from app.model.channel import Channel
 from app.model.video import Video
@@ -14,8 +13,7 @@ output_directory = os.path.join(current_directory, "mp3_output")
 
 
 def download_audio_as_mp3(video: Video, output_path):
-    file_title = re.sub(r'[\/:*?"<>|]', "", video.title)  # Remove invalid characters
-    if os.path.exists(os.path.join(output_path, f"{file_title}.mp3")):
+    if os.path.exists(os.path.join(output_path, f"{video.filename}.mp3")):
         raise Exception(f'"{video.title}" was already downloaded')
     else:
         try:
@@ -24,16 +22,16 @@ def download_audio_as_mp3(video: Video, output_path):
                 only_audio=True, file_extension="mp4"
             ).first()
             if audio_stream:
-                mp4_filename = os.path.join(output_path, f"{file_title}.mp4")
-                mp3_filename = os.path.join(output_path, f"{file_title}.mp3")
+                mp4_filename = os.path.join(output_path, f"{video.filename}.mp4")
+                mp3_filename = os.path.join(output_path, f"{video.filename}.mp3")
 
                 audio_stream.download(
-                    output_path=output_path, filename=file_title + ".mp4"
+                    output_path=output_path, filename=video.filename + ".mp4"
                 )
 
                 if os.path.exists(mp4_filename) and mp4_filename.endswith(".mp4"):
                     os.rename(mp4_filename, mp3_filename)
-                    print(f"Downloaded audio: {file_title}")
+                    print(f"Downloaded audio: {video.filename}")
                 else:
                     raise FileNotFoundError(
                         f"Error downloading audio from {video.url}: MP4 file not found or has incorrect extension"
@@ -78,9 +76,16 @@ def load_more_videos(driver):
     video_element_list = []
     for element in video_elements:
         video_element_list.append(
-            Video(element.get_attribute("title"), element.get_attribute("href"), "")
+            Video(
+                element.get_attribute("title"),
+                element.get_attribute("href"),
+                "https://i.ytimg.com/vi/"
+                + element.get_attribute("href")[-11:]
+                + "/hqdefault.jpg",
+            )
         )
-
+    #for element in video_element_list:
+    #    print(element.filename)
     return video_element_list
 
 
@@ -105,28 +110,18 @@ def get_videos_from_channel(channel_config):
                 and "/watch?v=" in element.url
                 and element.url not in shown_video_links
             ):
-                new_videos_len = (
-                    new_videos_len + 1
-                )  # It will be 0 if there are no new videos
+                new_videos_len = new_videos_len + 1
                 if (
                     search_title and search_title in element.title
                 ):  # search_title is not null ==> to make search_title optional
                     video_found = True
                     break  # Exit the loop if the desired video is found
                 elif specific_word in element.title:
-                    new_videos.append(
-                        Video(
-                            element.title,
-                            element.url,
-                            "https://i.ytimg.com/vi/"
-                            + element.url[-11:]
-                            + "/hqdefault.jpg",
-                        )
-                    )
+                    new_videos.append(element)
                 shown_video_links.add(element.url)
         if video_found:
             break  # No need to continue loading if the video is found
-        if new_videos_len == 0:
+        if new_videos_len == 0:  # It will be 0 if there are no new videos
             break  # No need to continue loading if there are no videos anymore
     driver.quit()  # Close the browser
     return new_videos
