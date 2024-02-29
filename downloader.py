@@ -71,10 +71,17 @@ def load_more_videos(driver):
         actions = ActionChains(driver)
         actions.move_to_element(continuation_elements[0]).perform()
         time.sleep(3)  # Wait for new videos to load
-    return driver.find_elements(
+    video_elements = driver.find_elements(
         By.CSS_SELECTOR,
         ".yt-simple-endpoint.focus-on-expand.style-scope.ytd-rich-grid-media",
     )
+    video_element_list = []
+    for element in video_elements:
+        video_element_list.append(
+            Video(element.get_attribute("title"), element.get_attribute("href"), "")
+        )
+
+    return video_element_list
 
 
 def get_videos_from_channel(channel_config):
@@ -92,26 +99,31 @@ def get_videos_from_channel(channel_config):
         video_elements = load_more_videos(driver)
         new_videos_len = 0  # To control that there are no videos anymore
         for element in video_elements:
-            href = element.get_attribute("href")
-            title = element.get_attribute("title")
-            if href and title and "/watch?v=" in href and href not in shown_video_links:
+            if (
+                element.url
+                and element.title
+                and "/watch?v=" in element.url
+                and element.url not in shown_video_links
+            ):
                 new_videos_len = (
                     new_videos_len + 1
                 )  # It will be 0 if there are no new videos
                 if (
-                    search_title and search_title in title
+                    search_title and search_title in element.title
                 ):  # search_title is not null ==> to make search_title optional
                     video_found = True
                     break  # Exit the loop if the desired video is found
-                elif specific_word in title:
+                elif specific_word in element.title:
                     new_videos.append(
                         (
-                            title,
-                            href,
-                            "https://i.ytimg.com/vi/" + href[-11:] + "/hqdefault.jpg",
+                            element.title,
+                            element.url,
+                            "https://i.ytimg.com/vi/"
+                            + element.url[-11:]
+                            + "/hqdefault.jpg",
                         )
                     )
-                shown_video_links.add(href)
+                shown_video_links.add(element.url)
         if video_found:
             break  # No need to continue loading if the video is found
         if new_videos_len == 0:
