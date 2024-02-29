@@ -7,8 +7,10 @@ sys.path.insert(0, parent_dir)
 import iterator
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
-# Output directory for MP3 files
-output_directory = os.path.join(parent_dir, "mp3_output")
+
+output_directory = os.path.join(
+    parent_dir, "mp3_output"
+)  # Output directory for MP3 files
 
 
 def test_load_channels():

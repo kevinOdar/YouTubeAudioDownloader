@@ -19,7 +19,7 @@ expected_videos = []  # Used by the fixture
 def delete_test_files():
     yield
     for video in expected_videos:
-        filename = video[0]  # First value of the tuple
+        filename = video.title  # First value of the tuple
 
         file_path = os.path.join(
             output_directory, re.sub(r'[\/:*?"<>|]', "", filename) + ".mp3"
@@ -40,16 +40,16 @@ def test_load_more_videos():
 def test_download_audio_as_mp3(delete_test_files):
     global expected_videos  # Used by the fixture
     expected_videos = [
-        (
+        Video(
             "04 - U2 New Years Day (Slane Castle 2001 Live) HD",
             "https://www.youtube.com/watch?v=95vkJfeJBw4",
+            "",
         )
     ]
 
-    file_path = os.path.join(output_directory, f"{expected_videos[0][0]}.mp3")
-    video = Video(expected_videos[0][0], expected_videos[0][1], "")
+    file_path = os.path.join(output_directory, f"{expected_videos[0].title}.mp3")
     downloader.download_audio_as_mp3(
-        video,
+        expected_videos[0],
         output_directory,
     )
 
@@ -57,7 +57,6 @@ def test_download_audio_as_mp3(delete_test_files):
     assert file_path.endswith(".mp3")
 
 
-# @pytest.mark.only
 def test_download_videos_from_channel_all_videos(delete_test_files):
     channel_config = {
         "channel_url": "file:///"
@@ -67,33 +66,39 @@ def test_download_videos_from_channel_all_videos(delete_test_files):
     }
     global expected_videos  # Used by the fixture
     expected_videos = [
-        (
+        Video(
             "Ivy Queen: Tiny Desk Concert",
             "https://www.youtube.com/watch?v=7EAM4pxxL4Y",
             "https://i.ytimg.com/vi/7EAM4pxxL4Y/hqdefault.jpg",
         ),
-        (
+        Video(
             "Caroline Polachek: Tiny Desk Concert",
             "https://www.youtube.com/watch?v=JmnZHQNN5cc",
             "https://i.ytimg.com/vi/JmnZHQNN5cc/hqdefault.jpg",
         ),
-        (
+        Video(
             "Villano Antillano: Tiny Desk Concert",
             "https://www.youtube.com/watch?v=RxhleZbLF64",
             "https://i.ytimg.com/vi/RxhleZbLF64/hqdefault.jpg",
         ),
-        (
+        Video(
             "Alex Cuba: Tiny Desk Concert",
             "https://www.youtube.com/watch?v=A3ThZptD8WY",
             "https://i.ytimg.com/vi/A3ThZptD8WY/hqdefault.jpg",
         ),
-        (
+        Video(
             "Chlöe: Tiny Desk Concert",
             "https://www.youtube.com/watch?v=oIeqO2tyhcY",
             "https://i.ytimg.com/vi/oIeqO2tyhcY/hqdefault.jpg",
         ),
     ]
-    assert downloader.get_videos_from_channel(channel_config) == expected_videos
+
+    video_element_list = downloader.get_videos_from_channel(channel_config)
+    assert len(video_element_list) == len(expected_videos)
+    for video1, video2 in zip(video_element_list, expected_videos):
+        assert video1.title == video2.title
+        assert video1.url == video2.url
+        assert video1.thumbnail_url == video2.thumbnail_url
 
     downloader.download_videos_from_channel(channel_config)
     for title, _, _ in expected_videos:
@@ -103,6 +108,7 @@ def test_download_videos_from_channel_all_videos(delete_test_files):
         assert os.path.exists(expected_file_path)
 
 
+#@pytest.mark.only
 def test_only_download_one_video(delete_test_files, capsys):
     channel_config = {
         "channel_url": "file:///"
@@ -112,13 +118,18 @@ def test_only_download_one_video(delete_test_files, capsys):
     }
     global expected_videos  # Used by the fixture
     expected_videos = [
-        (
+        Video(
             "Ivy Queen: Tiny Desk Concert",
             "https://www.youtube.com/watch?v=7EAM4pxxL4Y",
             "https://i.ytimg.com/vi/7EAM4pxxL4Y/hqdefault.jpg",
         ),
     ]
-    assert downloader.get_videos_from_channel(channel_config) == expected_videos
+    video_element_list = downloader.get_videos_from_channel(channel_config)
+    assert len(video_element_list) == len(expected_videos)
+    for video1, video2 in zip(video_element_list, expected_videos):
+        assert video1.title == video2.title
+        assert video1.url == video2.url
+        assert video1.thumbnail_url == video2.thumbnail_url
 
     downloader.download_videos_from_channel(channel_config)
     assert os.path.exists(
@@ -128,8 +139,7 @@ def test_only_download_one_video(delete_test_files, capsys):
     with pytest.raises(
         Exception, match='"Ivy Queen: Tiny Desk Concert" was already downloaded'
     ):
-        video = Video(expected_videos[0][0], expected_videos[0][1], "")
-        downloader.download_audio_as_mp3(video, output_directory)
+        downloader.download_audio_as_mp3(expected_videos[0], output_directory)
 
     capsys.readouterr()  # To catch the first printout "Downloaded audio..."
     downloader.download_videos_from_channel(channel_config)

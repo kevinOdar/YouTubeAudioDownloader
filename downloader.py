@@ -115,7 +115,7 @@ def get_videos_from_channel(channel_config):
                     break  # Exit the loop if the desired video is found
                 elif specific_word in element.title:
                     new_videos.append(
-                        (
+                        Video(
                             element.title,
                             element.url,
                             "https://i.ytimg.com/vi/"
@@ -134,11 +134,7 @@ def get_videos_from_channel(channel_config):
 
 def download_videos_from_channel(channel_config):
     new_videos = get_videos_from_channel(channel_config)
-    new_videos2 = []
-    for title, video_url, _ in new_videos:
-        video = Video(title, video_url, "")
-        new_videos2.append(video)
-    for video in new_videos2:
+    for video in new_videos:
         try:
             download_audio_as_mp3(video, output_directory)
         except Exception as e:

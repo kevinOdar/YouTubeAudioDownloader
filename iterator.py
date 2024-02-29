@@ -24,9 +24,9 @@ def download_videos_from_each_channel(channels):
         results = download_videos_from_channel(channel)
         print("-" * 50)
         if results:
-            channel["search_title"] = results[0][
+            channel["search_title"] = results[
                 0
-            ]  # Save the first downloaded title in the JSON file
+            ].title  # Save the first downloaded title in the JSON file
     return channels
 
 
