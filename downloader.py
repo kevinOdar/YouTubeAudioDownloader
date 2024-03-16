@@ -6,6 +6,9 @@ import time
 import os
 from app.model.channel import Channel
 from app.model.video import Video
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.options import Options as ChromeOptions
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -46,14 +49,19 @@ def download_audio_as_mp3(video: Video, output_path):
 
 def set_driver(channel_url, wait):
     # Selenium and Chrome Driver Configuration
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--disable-logging")  # Disable browser logging
-    options.add_argument("--log-level=3")  # Set the log level to SEVERE
-    chrome_service = webdriver.chrome.service.Service(
-        os.path.join(current_directory, "chromedriver.exe")
-    )
-    driver = webdriver.Chrome(service=chrome_service, options=options)
+    # options = webdriver.ChromeOptions()
+    chrome_options = ChromeOptions()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-logging")  # Disable browser logging
+    chrome_options.add_argument("--log-level=3")  # Set the log level to SEVERE
+
+    # chrome_service = webdriver.chrome.service.Service(
+    #     os.path.join(current_directory, "chromedriver.exe")
+    # )
+
+    chrome_driver_path = ChromeDriverManager().install()
+    chrome_service = ChromeService(executable_path=chrome_driver_path)
+    driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
 
     driver.get(channel_url)  # Open the channel page
 
@@ -84,7 +92,7 @@ def load_more_videos(driver):
                 + "/hqdefault.jpg",
             )
         )
-    #for element in video_element_list:
+    # for element in video_element_list:
     #    print(element.filename)
     return video_element_list
 
