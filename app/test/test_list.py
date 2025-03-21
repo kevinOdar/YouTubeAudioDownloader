@@ -32,7 +32,7 @@ def list_window_fixture(qtbot):
     QTest.mouseClick(home_window.home.btnSearch, Qt.MouseButton.LeftButton)
     return home_window.list
 
-
+@pytest.mark.only
 def test_list_elements_appear(list_window_fixture, qtbot):
     list_widget = list_window_fixture.list_widget
     assert list_widget.spinner_label.isVisible()
@@ -45,6 +45,7 @@ def test_list_elements_appear(list_window_fixture, qtbot):
     assert list_widget.tableWidget.isVisible()
 
 
+@pytest.mark.only
 def test_list_shows_elements(list_window_fixture, qtbot):
     list_widget = list_window_fixture.list_widget
     qtbot.waitUntil(
@@ -65,7 +66,9 @@ def test_list_shows_elements(list_window_fixture, qtbot):
     assert button_first_video.text() == "Download"
     assert button_latest_video.text() == "Download"
 
+    list_widget.close()
 
+@pytest.mark.only
 def test_download_one_element(list_window_fixture, qtbot, temporary_test_folder):
 
     list_widget = list_window_fixture.list_widget
@@ -88,8 +91,8 @@ def test_download_one_element(list_window_fixture, qtbot, temporary_test_folder)
         list_widget.lblMessage.text()
     ) == '"◄Slark 25mmr/sec► │VOL.1│" downloaded successfully'
 
+    
 
-@pytest.mark.only
 def test_shows_message_already_downloaded(
     list_window_fixture, qtbot, temporary_test_folder
 ):

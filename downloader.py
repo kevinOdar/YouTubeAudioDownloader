@@ -14,6 +14,7 @@ current_directory = os.path.dirname(os.path.abspath(__file__))
 
 output_directory = os.path.join(current_directory, "mp3_output")
 
+driver = None
 
 def download_audio_as_mp3(video: Video, output_path):
     if os.path.exists(os.path.join(output_path, f"{video.filename}.mp3")):
@@ -58,7 +59,7 @@ def set_driver(channel_url, wait):
     # chrome_service = webdriver.chrome.service.Service(
     #     os.path.join(current_directory, "chromedriver.exe")
     # )
-
+    global driver
     chrome_driver_path = ChromeDriverManager().install()
     chrome_service = ChromeService(executable_path=chrome_driver_path)
     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
@@ -131,7 +132,7 @@ def get_videos_from_channel(channel_config):
             break  # No need to continue loading if the video is found
         if new_videos_len == 0:  # It will be 0 if there are no new videos
             break  # No need to continue loading if there are no videos anymore
-    driver.quit()  # Close the browser
+    # driver.quit()  # Close the browser
     return new_videos
 
 

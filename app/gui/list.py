@@ -1,5 +1,5 @@
 import os
-from PyQt6 import uic, QtNetwork
+from PyQt6 import uic
 from PyQt6.QtWidgets import (
     QLabel,
     QApplication,
@@ -10,12 +10,14 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QMessageBox,
 )
-from PyQt6.QtGui import QPixmap, QMovie
-from PyQt6.QtCore import QUrl, Qt, QThread, pyqtSignal, QTimer
+from PyQt6.QtGui import QImage, QPixmap, QMovie, QImageReader
+from PyQt6.QtCore import Qt, QUrl, QThread, pyqtSignal, QTimer
 from data.channel import ChannelData
 from model.channel import Channel
 from model.video import Video
 from typing import List
+from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+import requests
 
 # Constants
 THUMBNAIL_COLUMN_WIDTH = 298
@@ -29,29 +31,39 @@ SPINNER_PATH = os.path.join(
 channel_data = ChannelData()
 
 
+class ImageDownloader(QThread):
+    image_loaded = pyqtSignal(QPixmap)
+
+    def __init__(self, imageUrl):
+        super().__init__()
+        self.imageUrl = imageUrl
+
+    def run(self):
+        try:
+            response = requests.get(self.imageUrl)
+            response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
+            image_data = response.content
+            pixmap = QPixmap()
+            pixmap.loadFromData(image_data)
+            self.image_loaded.emit(pixmap)
+        except requests.RequestException as e:
+            print(f"Error loading image: {e}")
+
+
 class ImageWidget(QLabel):
     """Widget to display images downloaded from a URL."""
 
     def __init__(self, imageUrl):
-        super(ImageWidget, self).__init__()
-        self.network_manager = QtNetwork.QNetworkAccessManager(self)
+        super().__init__()
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image_url = imageUrl
-        self.request_image()
+        self.image_downloader = ImageDownloader(imageUrl)
+        self.image_downloader.image_loaded.connect(self.on_image_loaded)
+        self.image_downloader.start()
 
-    def request_image(self):
-        request = QtNetwork.QNetworkRequest(QUrl(self.image_url))
-        self.network_manager.finished.connect(self.handle_image_response)
-        self.network_manager.get(request)
-
-    def handle_image_response(self, reply):
-        if reply.error() == QtNetwork.QNetworkReply.NetworkError.NoError:
-            data = reply.readAll()
-            pixmap = QPixmap()
-            pixmap.loadFromData(data)
-            self.setPixmap(pixmap)
-            self.setScaledContents(True)
-        else:
-            print(f"Error loading image: {reply.errorString()}")
+    def on_image_loaded(self, pixmap):
+        self.setPixmap(pixmap)
+        self.setScaledContents(True)
 
 
 class VideoDownloaderThread(QThread):
@@ -134,7 +146,7 @@ class VideoLoaderThread(QThread):
 
     def run(self):
         try:
-            self.availableVideos = channel_data.get_videos(self.channel)
+            self.availableVideos = channel_data.get_videos2(self.channel)
             self.video_loaded.emit(self.availableVideos)
         except Exception as e:
             print(e)
@@ -142,7 +154,9 @@ class VideoLoaderThread(QThread):
 
 class ListWindow:
     def __init__(self, channel: Channel) -> None:
+        # self.reset_instance()
         self.list_widget = uic.loadUi("gui/list.ui")
+        self.channel = channel
 
         # Video loading thread
         self.video_loader_thread = VideoLoaderThread(channel)
@@ -158,6 +172,9 @@ class ListWindow:
         )
         self.list_widget.btnBack.setToolTip("Return")
         self.list_widget.btnBack.clicked.connect(self.back_home)
+
+        # Load More Videos Button
+        self.list_widget.btnLoadMore.hide()
 
         # Path selection
         self.download_path = ""
@@ -189,28 +206,41 @@ class ListWindow:
         self.list_widget.btnDownloadAll.setEnabled(False)
         self.list_widget.btnDownloadAll.clicked.connect(self.download_all)
 
-    def update_filter_text(self):
-        self.filtered_videos = list(
-            filter(
-                lambda video: self.list_widget.txtFilter.text().lower()
-                in video.title.lower(),
-                self.video_loader_thread.availableVideos,
-            )
-        )
-        self.handle_video_loading(self.filtered_videos)
+    # def reset_instance(self):
+    #     #self.list_widget = None
+    #     #self.channel = None
+    #     self.video_loader_thread = None
+    #     self.filtered_videos = []
+    #     self.download_path = ""
 
     def handle_video_loading(self, availableVideos: List[Video]):
         self.list_widget.txtFilter.setEnabled(True)
         self.list_widget.btnDownloadAll.setEnabled(True)
         self.list_widget.spinner_label.hide()
-        try:
+        self.list_widget.btnLoadMore.hide()
 
+        self.fill_table(availableVideos)
+
+        if channel_data.check_if_for_more_videos():
+            # self.list_widget.btnLoadMore.setEnabled(True)
+            self.list_widget.btnLoadMore.show()
+            self.list_widget.btnLoadMore.clicked.connect(
+                lambda: self.next_videos(availableVideos)
+            )
+
+            # self.video_loader_thread = VideoLoaderThread(self.channel)
+            # self.video_loader_thread.video_loaded.connect(self.handle_video_loading)
+            # self.video_loader_thread.start()
+            # for element in videos:
+            #     print(element.title)
+
+    def fill_table(self, availableVideos: List[Video]):
+        try:
             self.list_widget.tableWidget.setRowCount(len(availableVideos))
             for i, (title, url, thumbnail_url) in enumerate(availableVideos):
                 self.list_widget.tableWidget.setRowHeight(
                     i, 200
                 )  # 166 original on youtube
-
                 # First column
                 image = ImageWidget(thumbnail_url)
                 self.list_widget.tableWidget.setCellWidget(i, 0, image)
@@ -233,6 +263,21 @@ class ListWindow:
             print(e)
         finally:
             QApplication.processEvents()  # Force the application to process any pending events
+
+    def update_filter_text(self):
+        self.filtered_videos = list(
+            filter(
+                lambda video: self.list_widget.txtFilter.text().lower()
+                in video.title.lower(),
+                self.video_loader_thread.availableVideos,
+            )
+        )
+        self.fill_table(self.filtered_videos)
+
+    def next_videos(self, availableVideos: List[Video]):
+        next_videos = channel_data.get_videos2(self.channel)
+        self.video_loader_thread.availableVideos += next_videos
+        self.handle_video_loading(availableVideos + next_videos)
 
     def download_all(self):
         if not self.download_path:
@@ -263,7 +308,12 @@ class ListWindow:
         from gui.home import Home
 
         self.home = Home()
-        self.list_widget.hide()
+        # self.video_loader_thread.quit()  # Finalizar el hilo de carga de vídeos
+        # self.video_loader_thread.wait()  # Esperar a que el hilo termine
+        # self.reset_instance()
+
+        self.list_widget.close()
+        self.list_widget.deleteLater()
 
     def select_download_path(self):
         selected_path = QFileDialog.getExistingDirectory(

@@ -22,7 +22,10 @@ class Home(QWidget):
             if status_code == 200:
                 channel = Channel(channel_name=self.home.txtChannel.text())
                 self.list = ListWindow(channel)
-                self.home.hide()
+                #self.list.reset_instance()
+                #self.home.hide()
+                self.home.close()
+                self.home.deleteLater()
             elif not status_code:
                 self.home.lblMessage.setText(
                     "No internet connection. Please check your network."
