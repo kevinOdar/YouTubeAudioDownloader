@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from downloader import download_videos_from_channel
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -21,8 +22,12 @@ def load_channels(filename):
 
 def download_videos_from_each_channel(channels):
     for channel in channels:
+        print(
+            "-" * 25,
+            re.search(r"(?:@|c/|user/)([^/]+)", channel["channel_url"]).group(1),
+            "-" * 25,
+        )  #   To show the chanel name
         results = download_videos_from_channel(channel)
-        print("-" * 50)
         if results:
             channel["search_title"] = results[
                 0
