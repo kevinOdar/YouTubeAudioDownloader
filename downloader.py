@@ -125,7 +125,7 @@ def get_videos_from_channel(channel_config):
                 ):  # search_title is not null ==> to make search_title optional
                     video_found = True
                     break  # Exit the loop if the desired video is found
-                elif specific_word in element.title:
+                elif specific_word.lower() in element.title.lower():
                     new_videos.append(element)
                 shown_video_links.add(element.url)
         if video_found:

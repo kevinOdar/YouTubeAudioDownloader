@@ -16,6 +16,8 @@ It utilizes the Selenium web automation library to navigate the YouTube website 
 
 - **Audio Download:** When a video that matches the given criteria is found, the script will extract the audio from all the videos that were published after the specified video. The extracted audio will then be saved as MP3 files in a folder called "mp3_output."
 
+- **The filter is case-insensitive** 
+
 **Note:** If a particular title is not specified, the script will download audio from all videos available on the YouTube channel.
 
 ## Requirements
