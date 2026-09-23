@@ -8,8 +8,8 @@ current_directory = os.path.dirname(os.path.abspath(__file__))
 output_directory = os.path.join(current_directory, "mp3_output")
 
 # Check if the output folder exists and create it if not
-if not os.path.exists(output_directory):
-    os.makedirs(output_directory)
+# if not os.path.exists(output_directory):
+#     os.makedirs(output_directory)
 
 
 # Load channel configurations from a JSON file
@@ -23,9 +23,11 @@ def load_channels(filename):
 def download_videos_from_each_channel(channels):
     for channel in channels:
         print(
-            "-" * 25,
+            "-" * 15,
             re.search(r"(?:@|c/|user/)([^/]+)", channel["channel_url"]).group(1),
-            "-" * 25,
+            "-" * 15,
+            channel["specific_word"],
+            "-" * 5,
         )  #   To show the chanel name
         results = download_videos_from_channel(channel)
         if results:

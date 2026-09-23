@@ -1,14 +1,14 @@
+import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from pytube import YouTube
 import time
 import os
-from app.model.channel import Channel
 from app.model.video import Video
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.chrome.options import Options
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -50,25 +50,16 @@ def download_audio_as_mp3(video: Video, output_path):
 
 def set_driver(channel_url, wait):
     # Selenium and Chrome Driver Configuration
-    # options = webdriver.ChromeOptions()
-    chrome_options = ChromeOptions()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-logging")  # Disable browser logging
-    chrome_options.add_argument("--log-level=3")  # Set the log level to SEVERE
+    chrome_options = Options()
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
 
-    # chrome_service = webdriver.chrome.service.Service(
-    #     os.path.join(current_directory, "chromedriver.exe")
-    # )
-    global driver
-    chrome_driver_path = ChromeDriverManager().install()
-    chrome_service = ChromeService(executable_path=chrome_driver_path)
-    driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.get(channel_url)
+    driver.implicitly_wait(wait)
 
-    driver.get(channel_url)  # Open the channel page
-
-    driver.implicitly_wait(wait)  # Wait for elements to load
     return driver
-
 
 def load_more_videos(driver):
     continuation_elements = driver.find_elements(
@@ -78,22 +69,30 @@ def load_more_videos(driver):
         actions = ActionChains(driver)
         actions.move_to_element(continuation_elements[0]).perform()
         time.sleep(3)  # Wait for new videos to load
-    video_elements = driver.find_elements(
-        By.CSS_SELECTOR,
-        ".yt-simple-endpoint.focus-on-expand.style-scope.ytd-rich-grid-media",
-    )
+    # video_elements = driver.find_elements(
+    #     By.CSS_SELECTOR,
+    #     ".yt-simple-endpoint.focus-on-expand.style-scope.ytd-rich-grid-media",
+    # )
+    video_elements = driver.find_elements(By.CSS_SELECTOR, ".ytLockupMetadataViewModelHeadingReset")
     video_element_list = []
     for element in video_elements:
+        #print(element.get_attribute("title"), element.get_attribute("href"))
+        link_element = element.find_element(By.TAG_NAME, "a")
+        #href = link_element.get_attribute("href")
+        #print(href)
+        #print(element.get_attribute("title"))
         video_element_list.append(
             Video(
                 element.get_attribute("title"),
-                element.get_attribute("href"),
-                "https://i.ytimg.com/vi/"
-                + element.get_attribute("href")[-11:]
-                + "/hqdefault.jpg",
+                #element.get_attribute("href"), 
+                link_element.get_attribute("href"),
+                ''
+                #"https://i.ytimg.com/vi/"
+                #+ element.get_attribute("href")[-11:]
+                #+ "/hqdefault.jpg",
             )
         )
-    # for element in video_element_list:
+    #for element in video_element_list:
     #    print(element.filename)
     return video_element_list
 
@@ -137,10 +136,23 @@ def get_videos_from_channel(channel_config):
 
 
 def download_videos_from_channel(channel_config):
+
+  
     new_videos = get_videos_from_channel(channel_config)
+
+    channel_name = (re.search(r"(?:@|c/|user/)([^/]+)", channel_config["channel_url"])).group(1)
+
+    if(len(new_videos)):
+        with open("links.txt", "a") as magnets_file:
+            magnets_file.write(channel_name + " " * 5 + channel_config["specific_word"] + "\n")    
+
     for video in new_videos:
-        try:
-            download_audio_as_mp3(video, output_directory)
-        except Exception as e:
-            print(str(e))
+        print(video.url)
+        with open("links.txt", "a") as magnets_file:
+                magnets_file.write(video.url + "\n")
+    # for video in new_videos:
+    #     try:
+    #         download_audio_as_mp3(video, output_directory)
+    #     except Exception as e:
+    #         print(str(e))
     return new_videos
